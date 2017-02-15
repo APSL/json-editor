@@ -18,7 +18,7 @@ JSONEditor.prototype = {
 
     var theme_class = JSONEditor.defaults.themes[this.options.theme || JSONEditor.defaults.theme];
     if(!theme_class) throw "Unknown theme " + (this.options.theme || JSONEditor.defaults.theme);
-    
+
     this.schema = this.options.schema;
     this.theme = new theme_class();
     this.template = this.options.template;

@@ -167,9 +167,8 @@ JSONEditor.defaults.editors.multiple = JSONEditor.AbstractEditor.extend({
     var self = this;
     var container = this.container;
 
-    this.header = this.label = this.theme.getFormInputLabel(this.getTitle());
-    this.container.appendChild(this.header);
-
+    this.switcher_container = this.theme.getSwitcherContainer();
+    this.header = this.theme.getFormInputLabel(this.getTitle());
     this.switcher = this.theme.getSwitcher(this.display_text);
     container.appendChild(this.switcher);
     this.switcher.addEventListener('change',function(e) {
@@ -179,11 +178,14 @@ JSONEditor.defaults.editors.multiple = JSONEditor.AbstractEditor.extend({
       self.switchEditor(self.display_text.indexOf(this.value));
       self.onChange(true);
     });
+    this.switcher_container.appendChild(this.header);
+    this.switcher_container.appendChild(this.switcher);
 
     this.editor_holder = document.createElement('div');
+
+    container.appendChild(this.switcher_container);
     container.appendChild(this.editor_holder);
-    
-      
+
     var validator_options = {};
     if(self.jsoneditor.options.custom_validators) {
       validator_options.custom_validators = self.jsoneditor.options.custom_validators;
@@ -212,6 +214,7 @@ JSONEditor.defaults.editors.multiple = JSONEditor.AbstractEditor.extend({
     });
 
     this.switchEditor(0);
+    this.theme.setSwitcherEvents(this);
   },
   onChildEditorChange: function(editor) {
     if(this.editors[this.type]) {

@@ -177,6 +177,7 @@ JSONEditor.defaults.editors.select = JSONEditor.AbstractEditor.extend({
     this.container.appendChild(this.control);
 
     this.value = this.enum_values[0];
+    this.theme.setSelectEvents(this);
   },
   onInputChange: function() {
     var val = this.input.value;
@@ -196,6 +197,9 @@ JSONEditor.defaults.editors.select = JSONEditor.AbstractEditor.extend({
     // Store new value and propogate change event
     this.value = new_val;
     this.onChange(true);
+  },
+  switchEditor: function(i) {
+    this.onInputChange();
   },
   setupSelect2: function() {
     // If the Select2 library is loaded use it when we have lots of items

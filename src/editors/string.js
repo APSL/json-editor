@@ -53,6 +53,9 @@ JSONEditor.defaults.editors.string = JSONEditor.AbstractEditor.extend({
 
     // Bubble this setValue to parents if the value changed
     this.onChange(changed);
+
+    if (changed) self.theme.enableLabel(self.label);
+
   },
   getNumColumns: function() {
     var min = Math.ceil(Math.max(this.getTitle().length,this.schema.maxLength||0,this.schema.minLength||0)/5);
@@ -189,6 +192,13 @@ JSONEditor.defaults.editors.string = JSONEditor.AbstractEditor.extend({
       this.input.disabled = true;
     }
 
+    this.input
+      .addEventListener('focus', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        self.theme.enableLabel(self.label);
+      });
     this.input
       .addEventListener('change',function(e) {        
         e.preventDefault();
@@ -440,9 +450,13 @@ JSONEditor.defaults.editors.string = JSONEditor.AbstractEditor.extend({
 
     if(messages.length) {
       this.theme.addInputError(this.input, messages.join('. ')+'.');
+      this.theme.enableLabel(this.label);
     }
     else {
       this.theme.removeInputError(this.input);
+      if (!this.input.value) {
+        this.theme.disableLabel(this.label);
+      }
     }
   }
 });
