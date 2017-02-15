@@ -275,10 +275,12 @@ JSONEditor.defaults.editors.array = JSONEditor.AbstractEditor.extend({
       else {
         if(row.tab === self.active_tab) {
           self.theme.markTabActive(row.tab);
+          self.theme.markTabContentActive(row.container);
           row.container.style.display = '';
         }
         else {
           self.theme.markTabInactive(row.tab);
+          self.theme.markTabContentInactive(row.container);
           row.container.style.display = 'none';
         }
       }

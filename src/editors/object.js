@@ -136,7 +136,7 @@ JSONEditor.defaults.editors.object = JSONEditor.AbstractEditor.extend({
       this.layout = JSON.stringify(rows);
 
       // Layout the form
-      container = document.createElement('div');
+      container = this.theme.getGridLayout();
       for(i=0; i<rows.length; i++) {
         var row = this.theme.getGridRow();
         container.appendChild(row);
@@ -152,7 +152,7 @@ JSONEditor.defaults.editors.object = JSONEditor.AbstractEditor.extend({
     }
     // Normal layout
     else {
-      container = document.createElement('div');
+      container = this.theme.getGridLayout();
       $each(this.property_order, function(i,key) {
         var editor = self.editors[key];
         if(editor.property_removed) return;
@@ -310,11 +310,9 @@ JSONEditor.defaults.editors.object = JSONEditor.AbstractEditor.extend({
 
       // Edit JSON modal
       this.editjson_holder = this.theme.getModal();
-      this.editjson_textarea = this.theme.getTextareaInput();
-      this.editjson_textarea.style.height = '170px';
-      this.editjson_textarea.style.width = '300px';
-      this.editjson_textarea.style.display = 'block';
-      this.editjson_save = this.getButton('Save','save','Save');
+      this.editjson_action_content = this.theme.getModalActionContent();
+      this.editjson_textarea = this.theme.getJsonEditorTextareaInput();
+      this.editjson_save = this.getButton('Save', 'save', 'Save');
       this.editjson_save.addEventListener('click',function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -326,27 +324,19 @@ JSONEditor.defaults.editors.object = JSONEditor.AbstractEditor.extend({
         e.stopPropagation();
         self.hideEditJSON();
       });
+      this.editjson_action_content.appendChild(this.editjson_save);
+      this.editjson_action_content.appendChild(this.editjson_cancel);
       this.editjson_holder.appendChild(this.editjson_textarea);
-      this.editjson_holder.appendChild(this.editjson_save);
-      this.editjson_holder.appendChild(this.editjson_cancel);
+      this.editjson_holder.appendChild(this.editjson_action_content);
 
       // Manage Properties modal
       this.addproperty_holder = this.theme.getModal();
-      this.addproperty_list = document.createElement('div');
-      this.addproperty_list.style.width = '295px';
-      this.addproperty_list.style.maxHeight = '160px';
-      this.addproperty_list.style.padding = '5px 0';
-      this.addproperty_list.style.overflowY = 'auto';
-      this.addproperty_list.style.overflowX = 'hidden';
-      this.addproperty_list.style.paddingLeft = '5px';
-      this.addproperty_list.setAttribute('class', 'property-selector');
+      this.addproperty_list = this.theme.getModalList();
+      this.addproperty_action_content = this.theme.getModalActionContent();
       this.addproperty_add = this.getButton('add','add','add');
-      this.addproperty_input = this.theme.getFormInputField('text');
-      this.addproperty_input.setAttribute('placeholder','Property name...');
-      this.addproperty_input.style.width = '220px';
-      this.addproperty_input.style.marginBottom = '0';
-      this.addproperty_input.style.display = 'inline-block';
-      this.addproperty_add.addEventListener('click',function(e) {
+      this.addproperty_input = this.theme.getPropertyNameInputField();
+      this.addproperty_input.setAttribute('placeholder', 'Property name...');
+      this.addproperty_add.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
         if(self.addproperty_input.value) {
@@ -362,13 +352,14 @@ JSONEditor.defaults.editors.object = JSONEditor.AbstractEditor.extend({
           self.onChange(true);
         }
       });
+      this.addproperty_action_content.appendChild(this.addproperty_input);
+      this.addproperty_action_content.appendChild(this.addproperty_add);
       this.addproperty_holder.appendChild(this.addproperty_list);
-      this.addproperty_holder.appendChild(this.addproperty_input);
-      this.addproperty_holder.appendChild(this.addproperty_add);
+      this.addproperty_holder.appendChild(this.addproperty_action_content);
+
       var spacer = document.createElement('div');
       spacer.style.clear = 'both';
       this.addproperty_holder.appendChild(spacer);
-
 
       // Description
       if(this.schema.description) {

@@ -167,6 +167,7 @@ JSONEditor.defaults.editors.selectize = JSONEditor.AbstractEditor.extend({
     this.container.appendChild(this.control);
 
     this.value = this.enum_values[0];
+    this.theme.setSelectEvents(this);
   },
   onInputChange: function() {
     var val = this.input.value;

@@ -12,6 +12,10 @@ JSONEditor.AbstractTheme = Class.extend({
   getContainer: function() {
     return document.createElement('div');
   },
+  getGridLayout: function() {
+    var el = document.createElement('div');
+    return el;
+  },
   getFloatRightLinkHolder: function() {
     var el = document.createElement('div');
     el.style = el.style || {};
@@ -27,6 +31,22 @@ JSONEditor.AbstractTheme = Class.extend({
     el.style.position = 'absolute';
     el.style.zIndex = '10';
     el.style.display = 'none';
+    return el;
+  },
+  getModalList: function() {
+    var el = document.createElement('div');
+    el.style.width = '295px';
+    el.style.maxHeight = '160px';
+    el.style.padding = '5px 0';
+    el.style.overflowY = 'auto';
+    el.style.overflowX = 'hidden';
+    el.style.paddingLeft = '5px';
+    el.setAttribute('class', 'property-selector');
+    return el;
+  },
+  getModalActionContent: function() {
+    var el = document.createElement('div');
+    el.style.padding = '5px';
     return el;
   },
   getGridContainer: function() {
@@ -55,12 +75,14 @@ JSONEditor.AbstractTheme = Class.extend({
     header.style.color = '#ccc';
   },
   disableLabel: function(label) {
+    if (!label) return;
     label.style.color = '#ccc';
   },
   enableHeader: function(header) {
     header.style.color = '';
   },
   enableLabel: function(label) {
+    if (!label) return;
     label.style.color = '';
   },
   getFormInputLabel: function(text) {
@@ -143,12 +165,34 @@ JSONEditor.AbstractTheme = Class.extend({
       select.appendChild(option);
     }
   },
+  setSelectEvents: function(editor) {
+    /**
+     * Used into <select.js> <selectize.js> to redefine event for materialize css.
+     * When use materialize each selector is reinstanced with <materialize_select> method,
+     * so it change events defined before.
+     */
+  },
+  getSwitcherContainer: function() {
+    return document.createElement('div');
+  },
+  setSwitcherEvents: function(editor) {
+    /**
+     * Used into <multiple.js> to redefine event for materialize css.
+     * The behaviour is the same as we describe before <setSelectEvents>.
+     */
+  },
   getTextareaInput: function() {
     var el = document.createElement('textarea');
     el.style = el.style || {};
     el.style.width = '100%';
     el.style.height = '300px';
     el.style.boxSizing = 'border-box';
+    return el;
+  },
+  getJsonEditorTextareaInput: function() {
+    var el = this.getTextareaInput();
+    el.style.height = '170px';
+    el.style.width = '300px';
     return el;
   },
   getRangeInput: function(min,max,step) {
@@ -161,6 +205,15 @@ JSONEditor.AbstractTheme = Class.extend({
   getFormInputField: function(type) {
     var el = document.createElement('input');
     el.setAttribute('type',type);
+    el.style.width = '220px';
+    el.style.marginBottom = '0';
+    el.style.display = 'inline-block';
+    return el;
+  },
+  getPropertyNameInputField: function() {
+    var el = this.getFormInputField('text');
+    el.style.width = 'auto';
+    el.style.marginRight = '5px';
     return el;
   },
   afterInputReady: function(input) {
@@ -226,6 +279,13 @@ JSONEditor.AbstractTheme = Class.extend({
   getTable: function() {
     return document.createElement('table');
   },
+  getTableControls: function() {
+    var el = document.createElement('div');
+    el.style.padding = '5px';
+    return el;
+  },
+  setTableButtonStyle: function(button) {
+  },
   getTableRow: function() {
     return document.createElement('tr');
   },
@@ -251,9 +311,9 @@ JSONEditor.AbstractTheme = Class.extend({
     el.appendChild(document.createTextNode(text));
     return el;
   },
-  addInputError: function(input, text) {
+  addInputError: function(input, text, label) {
   },
-  removeInputError: function(input) {
+  removeInputError: function(input, label) {
   },
   addTableRowError: function(row) {
   },
@@ -308,6 +368,12 @@ JSONEditor.AbstractTheme = Class.extend({
   },
   getTabContent: function() {
     return this.getIndentedPanel();
+  },
+  markTabContentActive: function(container) {
+    this.applyStyles(container,{display:''});
+  },
+  markTabContentInactive: function(container) {
+    this.applyStyles(container,{display:'none'});
   },
   markTabActive: function(tab) {
     this.applyStyles(tab,{
