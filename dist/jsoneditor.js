@@ -2667,13 +2667,15 @@ JSONEditor.defaults.editors.object = JSONEditor.AbstractEditor.extend({
       this.editjson_holder = this.theme.getModal();
       this.editjson_action_content = this.theme.getModalActionContent();
       this.editjson_textarea = this.theme.getJsonEditorTextareaInput();
-      this.editjson_save = this.getButton('Save', 'save', 'Save');
+      var save_text = this.translate('button_save');
+      this.editjson_save = this.getButton(save_text, 'save', save_text);
       this.editjson_save.addEventListener('click',function(e) {
         e.preventDefault();
         e.stopPropagation();
         self.saveJSON();
       });
-      this.editjson_cancel = this.getButton('Cancel','cancel','Cancel');
+      var cancel_text = this.translate('button_cancel');
+      this.editjson_cancel = this.getButton(cancel_text, 'cancel', cancel_text);
       this.editjson_cancel.addEventListener('click',function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -2688,15 +2690,16 @@ JSONEditor.defaults.editors.object = JSONEditor.AbstractEditor.extend({
       this.addproperty_holder = this.theme.getModal();
       this.addproperty_list = this.theme.getModalList();
       this.addproperty_action_content = this.theme.getModalActionContent();
-      this.addproperty_add = this.getButton('add','add','add');
+      var add_text = this.translate('button_add');
+      this.addproperty_add = this.getButton(add_text, 'add', add_text);
       this.addproperty_input = this.theme.getPropertyNameInputField();
-      this.addproperty_input.setAttribute('placeholder', 'Property name...');
+      this.addproperty_input.setAttribute('placeholder', this.translate('property_name'));
       this.addproperty_add.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
         if(self.addproperty_input.value) {
           if(self.editors[self.addproperty_input.value]) {
-            window.alert('there is already a property with that name');
+            window.alert(self.translate('property_already_exist'));
             return;
           }
 
@@ -2784,7 +2787,7 @@ JSONEditor.defaults.editors.object = JSONEditor.AbstractEditor.extend({
       }
 
       // Edit JSON Button
-      this.editjson_button = this.getButton('JSON','edit','Edit JSON');
+      this.editjson_button = this.getButton(this.translate('button_json'), 'edit', this.translate('button_title_json'));
       this.editjson_button.addEventListener('click',function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -2802,7 +2805,9 @@ JSONEditor.defaults.editors.object = JSONEditor.AbstractEditor.extend({
       }
 
       // Object Properties Button
-      this.addproperty_button = this.getButton('Properties','edit','Object Properties');
+      this.addproperty_button = this.getButton(
+        this.translate('button_property'), 'edit', this.translate('button_title_property')
+      );
       this.addproperty_button.addEventListener('click',function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -2864,7 +2869,7 @@ JSONEditor.defaults.editors.object = JSONEditor.AbstractEditor.extend({
       this.hideEditJSON();
     }
     catch(e) {
-      window.alert('invalid JSON');
+      window.alert(this.translate('invalid_json'));
       throw e;
     }
   },
@@ -3334,18 +3339,22 @@ JSONEditor.defaults.editors.array = JSONEditor.AbstractEditor.extend({
       else {
         this.panel = this.theme.getIndentedPanel();
         this.container.appendChild(this.panel);
-        this.row_holder = document.createElement('div');
+        this.row_holder = this.theme.getGridContainer();
         this.panel.appendChild(this.row_holder);
-        this.controls = this.theme.getButtonHolder();
-        this.panel.appendChild(this.controls);
+        this.controls_container = this.theme.getButtonHolder();
+        this.controls = this.theme.getTableControls();
+        this.controls_container.appendChild(this.controls);
+        this.panel.appendChild(this.controls_container);
       }
     }
     else {
         this.panel = this.theme.getIndentedPanel();
         this.container.appendChild(this.panel);
+        this.controls_container = this.theme.getButtonHolder();
         this.controls = this.theme.getButtonHolder();
-        this.panel.appendChild(this.controls);
-        this.row_holder = document.createElement('div');
+        this.controls_container.appendChild(this.controls);
+        this.panel.appendChild(this.controls_container);
+        this.row_holder = this.theme.getGridContainer();
         this.panel.appendChild(this.row_holder);
     }
 
@@ -3425,11 +3434,16 @@ JSONEditor.defaults.editors.array = JSONEditor.AbstractEditor.extend({
     else if(item_info.child_editors) {
       holder = this.theme.getChildEditorHolder();
     }
-    else {
-      holder = this.theme.getIndentedPanel();
-    }
 
-    this.row_holder.appendChild(holder);
+    if (this.tabs_holder || item_info.child_editors) {
+      this.row_holder.appendChild(holder);
+    }
+    else {
+      var container = this.theme.getIndentedPanel();
+      holder = this.theme.getGridContainer();
+      container.appendChild(holder);
+      this.row_holder.appendChild(container);
+    }
 
     var ret = this.jsoneditor.createEditor(editor,{
       jsoneditor: this.jsoneditor,
@@ -3444,7 +3458,7 @@ JSONEditor.defaults.editors.array = JSONEditor.AbstractEditor.extend({
     ret.postBuild();
 
     if(!ret.title_controls) {
-      ret.array_controls = this.theme.getButtonHolder();
+      ret.array_controls = this.theme.getGridContainer();
       holder.appendChild(ret.array_controls);
     }
     
@@ -3694,8 +3708,10 @@ JSONEditor.defaults.editors.array = JSONEditor.AbstractEditor.extend({
 
       self.theme.addTab(self.tabs_holder, self.rows[i].tab);
     }
-    
-    var controls_holder = self.rows[i].title_controls || self.rows[i].array_controls;
+
+    var controls = self.rows[i].title_controls || self.rows[i].array_controls;
+    var controls_holder = self.theme.getButtonHolder();
+    controls.appendChild(controls_holder);
     
     // Buttons to delete row, move row up, and move row down
     if(!self.hide_delete_buttons) {
@@ -4587,7 +4603,6 @@ JSONEditor.defaults.editors.multiple = JSONEditor.AbstractEditor.extend({
     this.switcher_container = this.theme.getSwitcherContainer();
     this.header = this.theme.getFormInputLabel(this.getTitle());
     this.switcher = this.theme.getSwitcher(this.display_text);
-    container.appendChild(this.switcher);
     this.switcher.addEventListener('change',function(e) {
       e.preventDefault();
       e.stopPropagation();
@@ -4725,7 +4740,7 @@ JSONEditor.defaults.editors["enum"] = JSONEditor.AbstractEditor.extend({
 
     var self = this;
     for(var i=0; i<this["enum"].length; i++) {
-      this.select_options[i] = this.options.enum_titles[i] || "Value "+(i+1);
+      this.select_options[i] = this.options.enum_titles[i] || this.translate('enum_value' [i+1]);
       this.html_values[i] = this.getHTML(this["enum"][i]);
     }
 
@@ -5753,7 +5768,8 @@ JSONEditor.defaults.editors.base64 = JSONEditor.AbstractEditor.extend({
   },
   build: function() {    
     var self = this;
-    this.title = this.header = this.label = this.theme.getFormInputLabel(this.getTitle());
+    this.wrapper = this.theme.getFileInputWrapper();
+    this.title = this.header = this.label = this.theme.getFileInputLabel(this.getTitle());
 
     // Input that holds the base64 string
     this.input = this.theme.getFormInputField('hidden');
@@ -5765,18 +5781,25 @@ JSONEditor.defaults.editors.base64 = JSONEditor.AbstractEditor.extend({
       
       // File uploader
       this.uploader = this.theme.getFormInputField('file');
-      
+
       this.uploader.addEventListener('change',function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        
+        if (self.theme.getProgressBar) {
+          self.progressBar = self.theme.getProgressBar();
+          self.wrapper.appendChild(self.progressBar);
+        }
+
         if(this.files && this.files.length) {
           var fr = new FileReader();
+          fr.onloadstart = function(evt) {
+            self.updateProgress();
+          };
           fr.onload = function(evt) {
-            self.value = evt.target.result;
-            self.refreshPreview();
-            self.onChange(true);
+            self.onLoadFileReader(evt);
             fr = null;
+          };
+          fr.onloadend = function(evt) {
+            self.updateProgress(100);
+            setTimeout(function() {self.progressBar.remove();}, 200);
           };
           fr.readAsDataURL(this.files[0]);
         }
@@ -5784,10 +5807,14 @@ JSONEditor.defaults.editors.base64 = JSONEditor.AbstractEditor.extend({
     }
 
     this.preview = this.theme.getFormInputDescription(this.schema.description);
-    this.container.appendChild(this.preview);
-
     this.control = this.theme.getFormControl(this.label, this.uploader||this.input, this.preview);
-    this.container.appendChild(this.control);
+    this.decorator = this.theme.getFileInputDecorator();
+
+    this.wrapper.appendChild(this.control);
+    if (this.decorator) this.wrapper.appendChild(this.decorator);
+    this.wrapper.appendChild(this.preview);
+
+    this.container.appendChild(this.wrapper);
   },
   refreshPreview: function() {
     if(this.last_preview === this.value) return;
@@ -5801,10 +5828,12 @@ JSONEditor.defaults.editors.base64 = JSONEditor.AbstractEditor.extend({
     if(mime) mime = mime[1];
     
     if(!mime) {
-      this.preview.innerHTML = '<em>Invalid data URI</em>';
+      this.preview.innerHTML = '<em>' + this.translate('invalid_uri') + '</em>';
     }
     else {
-      this.preview.innerHTML = '<strong>Type:</strong> '+mime+', <strong>Size:</strong> '+Math.floor((this.value.length-this.value.split(',')[0].length-1)/1.33333)+' bytes';
+      this.preview.innerHTML = '<strong>' + this.translate('type') + ':</strong> ' + mime +
+      ', <strong>' + this.translate('size') + ':</strong> ' +
+      Math.floor((this.value.length-this.value.split(',')[0].length-1)/1.33333) + ' bytes';
       if(mime.substr(0,5)==="image") {
         this.preview.innerHTML += '<br>';
         var img = document.createElement('img');
@@ -5838,6 +5867,17 @@ JSONEditor.defaults.editors.base64 = JSONEditor.AbstractEditor.extend({
     if(this.uploader && this.uploader.parentNode) this.uploader.parentNode.removeChild(this.uploader);
 
     this._super();
+  },
+  onLoadFileReader: function(event) {
+    this.setValue(event.target.result);
+    this.refreshPreview();
+    this.onChange(true);
+  },
+  updateProgress: function(progress) {
+    if (this.progressBar) {
+      if (progress) this.theme.updateProgressBar(this.progressBar, progress);
+      else this.theme.updateProgressBarUnknown(this.progressBar);
+    }
   }
 });
 
@@ -5863,15 +5903,10 @@ JSONEditor.defaults.editors.upload = JSONEditor.AbstractEditor.extend({
       this.uploader = this.theme.getFormInputField('file');
       
       this.uploader.addEventListener('change',function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        
         if(this.files && this.files.length) {
           var fr = new FileReader();
           fr.onload = function(evt) {
-            self.preview_value = evt.target.result;
-            self.refreshPreview();
-            self.onChange(true);
+            self.onLoadFileReader(evt);
             fr = null;
           };
           fr.readAsDataURL(this.files[0]);
@@ -5883,13 +5918,12 @@ JSONEditor.defaults.editors.upload = JSONEditor.AbstractEditor.extend({
     if (!description) description = '';
 
     this.preview = this.theme.getFormInputDescription(description);
-    this.container.appendChild(this.preview);
-
     this.control = this.theme.getFormControl(this.label, this.uploader||this.input, this.preview);
     this.decorator = this.theme.getFileInputDecorator();
 
     this.wrapper.appendChild(this.control);
-    this.wrapper.appendChild(this.decorator);
+    if (this.decorator) this.wrapper.appendChild(this.decorator);
+    this.wrapper.appendChild(this.preview);
 
     this.container.appendChild(this.wrapper);
   },
@@ -5909,7 +5943,8 @@ JSONEditor.defaults.editors.upload = JSONEditor.AbstractEditor.extend({
 
     var file = this.uploader.files[0];
 
-    this.preview.innerHTML = '<strong>Type:</strong> '+mime+', <strong>Size:</strong> '+file.size+' bytes';
+    this.preview.innerHTML = '<strong>' + this.translate('type') + ':</strong> ' + mime +
+    ', <strong>' + this.translate('size') + ':</strong> ' + file.size + ' bytes';
     if(mime.substr(0,5)==="image") {
       this.preview.innerHTML += '<br>';
       var img = document.createElement('img');
@@ -5920,7 +5955,8 @@ JSONEditor.defaults.editors.upload = JSONEditor.AbstractEditor.extend({
     }
 
     this.preview.innerHTML += '<br>';
-    var uploadButton = this.getButton('Upload', 'upload', 'Upload');
+    var upload_text = this.translate('button_upload');
+    var uploadButton = this.getButton(upload_text, 'upload', upload_text);
     this.preview.appendChild(uploadButton);
     uploadButton.addEventListener('click',function(event) {
       event.preventDefault();
@@ -5979,6 +6015,11 @@ JSONEditor.defaults.editors.upload = JSONEditor.AbstractEditor.extend({
     if(this.uploader && this.uploader.parentNode) this.uploader.parentNode.removeChild(this.uploader);
 
     this._super();
+  },
+  onLoadFileReader: function(event) {
+    this.preview_value = event.target.result;
+    this.refreshPreview();
+    this.onChange(true);
   }
 });
 
@@ -7505,7 +7546,7 @@ JSONEditor.defaults.themes.barebones = JSONEditor.AbstractTheme.extend({
 JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
   getModal: function() {
     var el = document.createElement('div');
-    el.className = 'card';
+    el.className = 'card mze-modal';
     el.style.position = 'absolute';
     el.style.zIndex = '10';
     el.style.display = 'none';
@@ -7515,12 +7556,12 @@ JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
     var el = document.createElement('div');
     el.style.maxHeight = '210px';
     el.style.overflow = 'auto';
-    el.className = 'card-content';
+    el.className = 'card-content mze-modal-content';
     return el;
   },
   getModalActionContent: function() {
     var el = document.createElement('div');
-    el.className = 'card-action';
+    el.className = 'card-action mze-modal-action-content';
     return el;
   },
   getRangeInput: function(min, max, step) {
@@ -7529,17 +7570,17 @@ JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
   },
   getIndentedPanel: function() {
     var el = document.createElement('div');
-    el.className = 'card';
+    el.className = 'card mze-indented-panel';
     return el;
   },
   getGridContainer: function() {
     var el = this._super();
-    el.className = 'card-content';
+    el.className = 'card-content mze-grid-container';
     return el;
   },
   getGridRow: function() {
     var el = document.createElement('div');
-    el.className = 'row';
+    el.className = 'row mze-grid-row';
     return el;
   },
   disableLabel: function(label) {
@@ -7562,29 +7603,31 @@ JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
     var el = document.createElement('div');
     el.className = 'file-path-wrapper';
     var input = document.createElement('input');
-    input.setAttribute('type', 'test');
+    input.setAttribute('type', 'text');
     input.className = 'file-path validate';
     el.appendChild(input);
     return el;
   },
   getHeader: function(text) {
     var el = document.createElement('h4');
-    el.className = 'row';
+    el.className = 'row mze-header';
     if(typeof text === "string") {
       el.textContent = text;
     }
     else {
-      text.className += ' col left';
+      text.className += ' col mze-header-text';
       el.appendChild(text);
     }
 
     return el;
   },
   setGridColumnSize: function(el,size) {
-    el.className = 's'+size;
+    el.className = ' mze-grid-column';
   },
   getSelectInput: function(options) {
-    return this._super(options);
+    var el = this._super(options);
+    el.className += ' mze-select-input';
+    return el;
   },
   setSelectEvents: function(editor) {
     window.$(editor.input).material_select();
@@ -7596,12 +7639,13 @@ JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
   },
   getSwitcherContainer: function() {
     var el = document.createElement('div');
-    el.className = 'switcher-container';
+    el.className = 'mze-switcher-container';
     return el;
   },
   getSwitcher: function(options) {
     var switcher = this.getSelectInput(options);
     switcher.style.fontStyle = 'italic';
+    switcher.className += ' mze-switcher';
     return switcher;
   },
   setSwitcherEvents: function(editor) {
@@ -7616,11 +7660,12 @@ JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
   },
   getCheckbox: function() {
     var el = this.getFormInputField('checkbox');
-    el.className += 'validate';
+    el.className = 'validate mze-checkbox';
     return el;
   },
   getFormInputField: function(type) {
     var el = document.createElement('input');
+    el.className = 'mze-input-field';
     el.setAttribute('type', type);
     return el;
   },
@@ -7630,11 +7675,12 @@ JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
   },
   getTextareaInput: function() {
     var el = document.createElement('textarea');
-    el.className = 'materialize-textarea';
+    el.className = 'materialize-textarea mze-textarea-input';
     return el;
   },
   getJsonEditorTextareaInput: function() {
     var el = this._super();
+    el.className += ' mze-jeditor-textarea-input';
     el.style.overflow = 'auto';
     el.style.height = '210px';
     el.style.width = '100%';
@@ -7644,10 +7690,10 @@ JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
     var el = this._super();
     el.className = 'file-field input-field';
     return el;
-  },
+  },    
   getDescription: function(text) {
     var el = document.createElement('p');
-    el.className = 'light';
+    el.className = 'light mze-description';
     el.style.margin = '-15px 0 15px 0';
     el.textContent = text;
     return el;
@@ -7669,10 +7715,11 @@ JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
 
     if(input.type === 'checkbox') {
       group = document.createElement('p');
+      group.className += ' mze-checkbox-group';
       group.appendChild(input);
     }
     else {
-      group.className += input.type === 'file' ? ' btn' : ' input-field';
+      group.className += (input.type === 'file' ? ' btn' : ' input-field mze-group');
       group.appendChild(input);
     }
 
@@ -7683,34 +7730,33 @@ JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
   },
   getButtonHolder: function() {
     var el = document.createElement('div');
-    el.className = 'col left';
+    el.className = 'col mze-button-holder';
     el.style.fontSize = '14px';
     return el;
   },
   getButton: function(text, icon, title) {
     var el =  this._super(text, icon, title);
-    el.className += 'waves-effect waves-light btn';
-    el.style.margin = '0 5px 0 5px';
+    el.className += 'waves-effect waves-light btn mze-button';
     return el;
   },
   getTable: function() {
     var el = document.createElement('table');
-    el.className = 'table bordered';
+    el.className = 'table bordered mze-table';
     el.style.padding = '5px';
     return el;
   },
   getTableControls: function() {
     var el = document.createElement('div');
-    el.className = 'card-action';
+    el.className = 'card-action mze-table-controls';
     return el;
   },
   setTableButtonStyle: function(button) {
-    button.className += ' right';
+    button.className += ' right mze-table-button-style';
   },
   addInputError: function(input,text) {
     if(!input.controlgroup) return;
     if (input.className.indexOf('invalid') < 0) {
-      input.className += ' invalid';
+      input.className += ' invalid mze-input-error';
     }
     input.controlgroup.children[1].dataset.error = text;
   },
@@ -7722,13 +7768,13 @@ JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
   },
   getTabHolder: function() {
     var el = document.createElement('div');
-    el.className = 'row';
+    el.className = 'row mze-tab-holder';
     el.innerHTML = "<div class='col s12'><ul class='tabs'></ul></div>";
     return el;
   },
   getTab: function(text) {
     var el = document.createElement('li');
-    el.className = 'tab col s3';
+    el.className = 'tab col s3 mze-tab';
     var a = document.createElement('a');
     a.setAttribute('href','#');
     a.appendChild(text);
@@ -7740,7 +7786,7 @@ JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
   },
   getTabContent: function() {
     var el = document.createElement('div');
-    el.className = 'col s12';
+    el.className = 'col s12 mze-tab-content';
     return el;
   },
   markTabContentActive: function(container) {
@@ -7766,7 +7812,7 @@ JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
   },
   getProgressBar: function() {
     var container = document.createElement('div');
-    container.className = 'progress';
+    container.className = 'progress mze-progress-bar';
 
     var bar = document.createElement('div');
     bar.className = 'determinate';
@@ -7778,16 +7824,16 @@ JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
   updateProgressBar: function(progressBar, progress) {
     if (!progressBar) return;
 
+    progressBar.firstChild.className = 'determinate';
     progressBar.firstChild.style.width = progress + "%";
   },
   updateProgressBarUnknown: function(progressBar) {
     if (!progressBar) return;
 
-    progressBar.className = 'indeterminate';
+    progressBar.firstChild.className = 'indeterminate';
     progressBar.firstChild.style = '';
   }
 });
-
 JSONEditor.AbstractIconLib = Class.extend({
   mapping: {
     collapse: '',
@@ -8108,6 +8154,115 @@ JSONEditor.defaults.translate = function(key, variables) {
 // Translation strings and default languages
 JSONEditor.defaults.default_language = 'en';
 JSONEditor.defaults.language = JSONEditor.defaults.default_language;
+
+// Miscellaneous Plugin Settings
+JSONEditor.plugins = {
+  ace: {
+    theme: ''
+  },
+  epiceditor: {
+
+  },
+  sceditor: {
+
+  },
+  select2: {
+    
+  },
+  selectize: {
+  }
+};
+
+// Default per-editor options
+$each(JSONEditor.defaults.editors, function(i,editor) {
+  JSONEditor.defaults.editors[i].options = editor.options || {};
+});
+
+// Set the default resolvers
+// Use "multiple" as a fall back for everything
+JSONEditor.defaults.resolvers.unshift(function(schema) {
+  if(typeof schema.type !== "string") return "multiple";
+});
+// If the type is not set but properties are defined, we can infer the type is actually object
+JSONEditor.defaults.resolvers.unshift(function(schema) {
+  // If the schema is a simple type
+  if(!schema.type && schema.properties ) return "object";
+});
+// If the type is set and it's a basic type, use the primitive editor
+JSONEditor.defaults.resolvers.unshift(function(schema) {
+  // If the schema is a simple type
+  if(typeof schema.type === "string") return schema.type;
+});
+// Boolean editors
+JSONEditor.defaults.resolvers.unshift(function(schema) {
+  if(schema.type === 'boolean') {
+    // If explicitly set to 'checkbox', use that
+    if(schema.format === "checkbox" || (schema.options && schema.options.checkbox)) {
+      return "checkbox";
+    }
+    // Otherwise, default to select menu
+    return (JSONEditor.plugins.selectize.enable) ? 'selectize' : 'select';
+  }
+});
+// Use the multiple editor for schemas where the `type` is set to "any"
+JSONEditor.defaults.resolvers.unshift(function(schema) {
+  // If the schema can be of any type
+  if(schema.type === "any") return "multiple";
+});
+// Editor for base64 encoded files
+JSONEditor.defaults.resolvers.unshift(function(schema) {
+  // If the schema can be of any type
+  if(schema.type === "string" && schema.media && schema.media.binaryEncoding==="base64") {
+    return "base64";
+  }
+});
+// Editor for uploading files
+JSONEditor.defaults.resolvers.unshift(function(schema) {
+  if(schema.type === "string" && schema.format === "url" && schema.options && schema.options.upload === true) {
+    if(window.FileReader) return "upload";
+  }
+});
+// Use the table editor for arrays with the format set to `table`
+JSONEditor.defaults.resolvers.unshift(function(schema) {
+  // Type `array` with format set to `table`
+  if(schema.type == "array" && schema.format == "table") {
+    return "table";
+  }
+});
+// Use the `select` editor for dynamic enumSource enums
+JSONEditor.defaults.resolvers.unshift(function(schema) {
+  if(schema.enumSource) return (JSONEditor.plugins.selectize.enable) ? 'selectize' : 'select';
+});
+// Use the `enum` or `select` editors for schemas with enumerated properties
+JSONEditor.defaults.resolvers.unshift(function(schema) {
+  if(schema["enum"]) {
+    if(schema.type === "array" || schema.type === "object") {
+      return "enum";
+    }
+    else if(schema.type === "number" || schema.type === "integer" || schema.type === "string") {
+      return (JSONEditor.plugins.selectize.enable) ? 'selectize' : 'select';
+    }
+  }
+});
+// Specialized editors for arrays of strings
+JSONEditor.defaults.resolvers.unshift(function(schema) {
+  if(schema.type === "array" && schema.items && !(Array.isArray(schema.items)) && schema.uniqueItems && ['string','number','integer'].indexOf(schema.items.type) >= 0) {
+    // For enumerated strings, number, or integers
+    if(schema.items.enum) {
+      return 'multiselect';
+    }
+    // For non-enumerated strings (tag editor)
+    else if(JSONEditor.plugins.selectize.enable && schema.items.type === "string") {
+      return 'arraySelectize';
+    }
+  }
+});
+// Use the multiple editor for schemas with `oneOf` set
+JSONEditor.defaults.resolvers.unshift(function(schema) {
+  // If this schema uses `oneOf` or `anyOf`
+  if(schema.oneOf || schema.anyOf) return "multiple";
+});
+
 JSONEditor.defaults.languages.en = {
   /**
    * When a property is not set
@@ -8281,116 +8436,308 @@ JSONEditor.defaults.languages.en = {
   /**
     * Title on Expand buttons
     */
-  button_expand: "Expand"
+  button_expand: "Expand",
+
+  /**
+   *  Invalid uri for upload files
+   */
+  invalid_uri: "Invalid data URI",
+  /**
+   *  Type of file details
+   */
+  type: "Type",
+  /**
+   * Size of file details
+   */
+  size: "Size",
+  /**
+   * For delimiter each element on enumeration
+   */
+  enum_value: "Value {{0}}",
+  /**
+   * Action to save objects
+   */
+  button_save: "Save",
+  /**
+   * Action to cancel objects
+   */
+  button_cancel: "Cancel",
+  /**
+   * Action to add objects
+   */
+  button_add: "Add",
+  /**
+   * Placeholder for input text to set new properties
+   */
+  property_name: "Property name...",
+  /**
+   * Test to shown on alerts when try to insert a property that already exists
+   */
+  property_already_exist: "There is already a property with that name",
+  /**
+   * Text for edit json button
+   */
+  button_json: 'JSON',
+  /**
+   * Title for edit json button
+   */
+  button_title_json: 'Edit JSON',
+  /**
+   * Text for edit json button
+   */
+  button_property: 'Properties',
+  /**
+   * Title for edit json button
+   */
+  button_title_property: 'Object Properties',
+  /**
+   * Invalid json
+   */
+  invalid_json: "Invalid JSON",
+  /**
+   * Text and title for upload button
+   */
+  button_upload: "Upload"
 };
 
-// Miscellaneous Plugin Settings
-JSONEditor.plugins = {
-  ace: {
-    theme: ''
-  },
-  epiceditor: {
 
-  },
-  sceditor: {
+JSONEditor.defaults.languages.es = {
+  /**
+   * When a property is not set
+   */
+  error_notset: "Debe inicializar la propiedad.",
+  /**
+   * When a string must not be empty
+   */
+  error_notempty: "Valor obligatorio.",
+  /**
+   * When a value is not one of the enumerated values
+   */
+  error_enum: "El valor debe ser uno de los valores enumerados.",
+  /**
+   * When a value doesn't validate any schema of a 'anyOf' combination
+   */
+  error_anyOf: "El valor debe validarse contra al menos uno de los esquemas proporcionados.",
+  /**
+   * When a value doesn't validate
+   * @variables This key takes one variable: The number of schemas the value does not validate
+   */
+  error_oneOf: 'El valor debe validarse contra exactamente uno de los esquemas proporcionados. Actualmente valida contra {{0}} de los esquemas.',
+  /**
+   * When a value does not validate a 'not' schema
+   */
+  error_not: "El valor no debe validarse contra el esquema proporcionado.",
+  /**
+   * When a value does not match any of the provided types
+   */
+  error_type_union: "El valor debe ser uno de los tipos proporcionados.",
+  /**
+   * When a value does not match the given type
+   * @variables This key takes one variable: The type the value should be of
+   */
+  error_type: "El valor debe ser del tipo {{0}}.",
+  /**
+   *  When the value validates one of the disallowed types
+   */
+  error_disallow_union: "El valor no puede ser uno de los tipos no permitidos.",
+  /**
+   *  When the value validates a disallowed type
+   * @variables This key takes one variable: The type the value should not be of
+   */
+  error_disallow: "El valor no puede ser del tipo {{0}}.",
+  /**
+   * When a value is not a multiple of or divisible by a given number
+   * @variables This key takes one variable: The number mentioned above
+   */
+  error_multipleOf: "El valor debe ser un múltiplo de {{0}}.",
+  /**
+   * When a value is greater than it's supposed to be (exclusive)
+   * @variables This key takes one variable: The maximum
+   */
+  error_maximum_excl: "El valor debe ser inferior a {{0}}.",
+  /**
+   * When a value is greater than it's supposed to be (inclusive
+   * @variables This key takes one variable: The maximum
+   */
+  error_maximum_incl: "El valor debe ser como mucho {{0}}.",
+  /**
+   * When a value is lesser than it's supposed to be (exclusive)
+   * @variables This key takes one variable: The minimum
+   */
+  error_minimum_excl: "El valor debe ser mayor que {{0}}.",
+  /**
+   * When a value is lesser than it's supposed to be (inclusive)
+   * @variables This key takes one variable: The minimum
+   */
+  error_minimum_incl: "El valor debe ser al menos {{0}}.",
+  /**
+   * When a value have too many characters
+   * @variables This key takes one variable: The maximum character count
+   */
+  error_maxLength: "El valor debe tener como máximo {{0}} caracteres.",
+  /**
+   * When a value does not have enough characters
+   * @variables This key takes one variable: The minimum character count
+   */
+  error_minLength: "El valor debe tener al menos {{0}} caracteres.",
+  /**
+   * When a value does not match a given pattern
+   */
+  error_pattern: "El valor debe coincidir con el patrón {{0}}.",
+  /**
+   * When an array has additional items whereas it is not supposed to
+   */
+  error_additionalItems: "No se permiten elementos adicionales en esta matriz.",
+  /**
+   * When there are to many items in an array
+   * @variables This key takes one variable: The maximum item count
+   */
+  error_maxItems: "El valor debe tener como máximo {{0}} elementos.",
+  /**
+   * When there are not enough items in an array
+   * @variables This key takes one variable: The minimum item count
+   */
+  error_minItems: "El valor debe tener al menos {{0}} elementos.",
+  /**
+   * When an array is supposed to have unique items but has duplicates
+   */
+  error_uniqueItems: "El array debe tener elementos únicos.",
+  /**
+   * When there are too many properties in an object
+   * @variables This key takes one variable: The maximum property count
+   */
+  error_maxProperties: "El objeto debe tener como máximo {{0}} propiedades.",
+  /**
+   * When there are not enough properties in an object
+   * @variables This key takes one variable: The minimum property count
+   */
+  error_minProperties: "El objeto debe tener al menos {{0}} propiedades.",
+  /**
+   * When a required property is not defined
+   * @variables This key takes one variable: The name of the missing property
+   */
+  error_required: "La propiedad '{{0}}' es obligatoria para el Objeto.",
+  /**
+   * When there is an additional property is set whereas there should be none
+   * @variables This key takes one variable: The name of the additional property
+   */
+  error_additional_properties: "Se establece la propiedad {{0}}, pero no se permiten propiedades adicionales.",
+  /**
+   * When a dependency is not resolved
+   * @variables This key takes one variable: The name of the missing property for the dependency
+   */
+  error_dependency: "Debe tener la propiedad {{0}}.",
+  /**
+   * Text on Delete All buttons
+   */
+  button_delete_all: "Todo",
+  /**
+   * Title on Delete All buttons
+   */
+  button_delete_all_title: "Borrar todo",
+  /**
+    * Text on Delete Last buttons
+    * @variable This key takes one variable: The title of object to delete
+    */
+  button_delete_last: "Último {{0}}",
+  /**
+    * Title on Delete Last buttons
+    * @variable This key takes one variable: The title of object to delete
+    */
+  button_delete_last_title: "Borrar último {{0}}",
+  /**
+    * Title on Add Row buttons
+    * @variable This key takes one variable: The title of object to add
+    */
+  button_add_row_title: "Añadir {{0}}.",
+  /**
+    * Title on Move Down buttons
+    */
+  button_move_down_title: "Abajo",
+  /**
+    * Title on Move Up buttons
+    */
+  button_move_up_title: "Arriba",
+  /**
+    * Title on Delete Row buttons
+    * @variable This key takes one variable: The title of object to delete
+    */
+  button_delete_row_title: "Borrar {{0}}",
+  /**
+    * Title on Delete Row buttons, short version (no parameter with the object title)
+    */
+  button_delete_row_title_short: "Borrar",
+  /**
+    * Title on Collapse buttons
+    */
+  button_collapse: "Contraer",
+  /**
+    * Title on Expand buttons
+    */
+  button_expand: "Expandir",
 
-  },
-  select2: {
-    
-  },
-  selectize: {
-  }
+  /**
+   *  Invalid uri for upload files
+   */
+  invalid_uri: "Datos URI inválidos.",
+  /**
+   *  Type of file details
+   */
+  type: "Tipo",
+  /**
+   * Size of file details
+   */
+  size: "Tamaño",
+  /**
+   * For delimiter each element on enumeration
+   */
+  enum_value: "Valor {{0}}",
+  /**
+   * Action to save objects
+   */
+  button_save: "Guardar",
+  /**
+   * Action to cancel objects
+   */
+  button_cancel: "Cancelar",
+  /**
+   * Action to add objects
+   */
+  button_add: "Añadir",
+  /**
+   * Placeholder for input text to set new properties
+   */
+  property_name: "Nombre propiedad...",
+  /**
+   * Test to shown on alerts when try to insert a property that already exists
+   */
+  property_already_exist: "Ya hay una propiedad con ese nombre.",
+  /**
+   * Text for edit json button
+   */
+  button_json: 'JSON',
+  /**
+   * Title for edit json button
+   */
+  button_title_json: 'Editar JSON',
+  /**
+   * Text for edit json button
+   */
+  button_property: 'Propiedades',
+  /**
+   * Title for edit json button
+   */
+  button_title_property: 'Propiedad',
+  /**
+   * Invalid json
+   */
+  invalid_json: "JSON inválido",
+  /**
+   * Text and title for upload button
+   */
+  button_upload: "Subir"
 };
 
-// Default per-editor options
-$each(JSONEditor.defaults.editors, function(i,editor) {
-  JSONEditor.defaults.editors[i].options = editor.options || {};
-});
-
-// Set the default resolvers
-// Use "multiple" as a fall back for everything
-JSONEditor.defaults.resolvers.unshift(function(schema) {
-  if(typeof schema.type !== "string") return "multiple";
-});
-// If the type is not set but properties are defined, we can infer the type is actually object
-JSONEditor.defaults.resolvers.unshift(function(schema) {
-  // If the schema is a simple type
-  if(!schema.type && schema.properties ) return "object";
-});
-// If the type is set and it's a basic type, use the primitive editor
-JSONEditor.defaults.resolvers.unshift(function(schema) {
-  // If the schema is a simple type
-  if(typeof schema.type === "string") return schema.type;
-});
-// Boolean editors
-JSONEditor.defaults.resolvers.unshift(function(schema) {
-  if(schema.type === 'boolean') {
-    // If explicitly set to 'checkbox', use that
-    if(schema.format === "checkbox" || (schema.options && schema.options.checkbox)) {
-      return "checkbox";
-    }
-    // Otherwise, default to select menu
-    return (JSONEditor.plugins.selectize.enable) ? 'selectize' : 'select';
-  }
-});
-// Use the multiple editor for schemas where the `type` is set to "any"
-JSONEditor.defaults.resolvers.unshift(function(schema) {
-  // If the schema can be of any type
-  if(schema.type === "any") return "multiple";
-});
-// Editor for base64 encoded files
-JSONEditor.defaults.resolvers.unshift(function(schema) {
-  // If the schema can be of any type
-  if(schema.type === "string" && schema.media && schema.media.binaryEncoding==="base64") {
-    return "base64";
-  }
-});
-// Editor for uploading files
-JSONEditor.defaults.resolvers.unshift(function(schema) {
-  if(schema.type === "string" && schema.format === "url" && schema.options && schema.options.upload === true) {
-    if(window.FileReader) return "upload";
-  }
-});
-// Use the table editor for arrays with the format set to `table`
-JSONEditor.defaults.resolvers.unshift(function(schema) {
-  // Type `array` with format set to `table`
-  if(schema.type == "array" && schema.format == "table") {
-    return "table";
-  }
-});
-// Use the `select` editor for dynamic enumSource enums
-JSONEditor.defaults.resolvers.unshift(function(schema) {
-  if(schema.enumSource) return (JSONEditor.plugins.selectize.enable) ? 'selectize' : 'select';
-});
-// Use the `enum` or `select` editors for schemas with enumerated properties
-JSONEditor.defaults.resolvers.unshift(function(schema) {
-  if(schema["enum"]) {
-    if(schema.type === "array" || schema.type === "object") {
-      return "enum";
-    }
-    else if(schema.type === "number" || schema.type === "integer" || schema.type === "string") {
-      return (JSONEditor.plugins.selectize.enable) ? 'selectize' : 'select';
-    }
-  }
-});
-// Specialized editors for arrays of strings
-JSONEditor.defaults.resolvers.unshift(function(schema) {
-  if(schema.type === "array" && schema.items && !(Array.isArray(schema.items)) && schema.uniqueItems && ['string','number','integer'].indexOf(schema.items.type) >= 0) {
-    // For enumerated strings, number, or integers
-    if(schema.items.enum) {
-      return 'multiselect';
-    }
-    // For non-enumerated strings (tag editor)
-    else if(JSONEditor.plugins.selectize.enable && schema.items.type === "string") {
-      return 'arraySelectize';
-    }
-  }
-});
-// Use the multiple editor for schemas with `oneOf` set
-JSONEditor.defaults.resolvers.unshift(function(schema) {
-  // If this schema uses `oneOf` or `anyOf`
-  if(schema.oneOf || schema.anyOf) return "multiple";
-});
 
 /**
  * This is a small wrapper for using JSON Editor like a typical jQuery plugin.

@@ -1,7 +1,7 @@
 JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
   getModal: function() {
     var el = document.createElement('div');
-    el.className = 'card';
+    el.className = 'card mze-modal';
     el.style.position = 'absolute';
     el.style.zIndex = '10';
     el.style.display = 'none';
@@ -11,12 +11,12 @@ JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
     var el = document.createElement('div');
     el.style.maxHeight = '210px';
     el.style.overflow = 'auto';
-    el.className = 'card-content';
+    el.className = 'card-content mze-modal-content';
     return el;
   },
   getModalActionContent: function() {
     var el = document.createElement('div');
-    el.className = 'card-action';
+    el.className = 'card-action mze-modal-action-content';
     return el;
   },
   getRangeInput: function(min, max, step) {
@@ -25,17 +25,17 @@ JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
   },
   getIndentedPanel: function() {
     var el = document.createElement('div');
-    el.className = 'card';
+    el.className = 'card mze-indented-panel';
     return el;
   },
   getGridContainer: function() {
     var el = this._super();
-    el.className = 'card-content';
+    el.className = 'card-content mze-grid-container';
     return el;
   },
   getGridRow: function() {
     var el = document.createElement('div');
-    el.className = 'row';
+    el.className = 'row mze-grid-row';
     return el;
   },
   disableLabel: function(label) {
@@ -65,22 +65,24 @@ JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
   },
   getHeader: function(text) {
     var el = document.createElement('h4');
-    el.className = 'row';
+    el.className = 'row mze-header';
     if(typeof text === "string") {
       el.textContent = text;
     }
     else {
-      text.className += ' col left';
+      text.className += ' col mze-header-text';
       el.appendChild(text);
     }
 
     return el;
   },
   setGridColumnSize: function(el,size) {
-    el.className = 's'+size;
+    el.className = ' mze-grid-column';
   },
   getSelectInput: function(options) {
-    return this._super(options);
+    var el = this._super(options);
+    el.className += ' mze-select-input';
+    return el;
   },
   setSelectEvents: function(editor) {
     window.$(editor.input).material_select();
@@ -92,12 +94,13 @@ JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
   },
   getSwitcherContainer: function() {
     var el = document.createElement('div');
-    el.className = 'switcher-container';
+    el.className = 'mze-switcher-container';
     return el;
   },
   getSwitcher: function(options) {
     var switcher = this.getSelectInput(options);
     switcher.style.fontStyle = 'italic';
+    switcher.className += ' mze-switcher';
     return switcher;
   },
   setSwitcherEvents: function(editor) {
@@ -112,11 +115,12 @@ JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
   },
   getCheckbox: function() {
     var el = this.getFormInputField('checkbox');
-    el.className += 'validate';
+    el.className = 'validate mze-checkbox';
     return el;
   },
   getFormInputField: function(type) {
     var el = document.createElement('input');
+    el.className = 'mze-input-field';
     el.setAttribute('type', type);
     return el;
   },
@@ -126,11 +130,12 @@ JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
   },
   getTextareaInput: function() {
     var el = document.createElement('textarea');
-    el.className = 'materialize-textarea';
+    el.className = 'materialize-textarea mze-textarea-input';
     return el;
   },
   getJsonEditorTextareaInput: function() {
     var el = this._super();
+    el.className += ' mze-jeditor-textarea-input';
     el.style.overflow = 'auto';
     el.style.height = '210px';
     el.style.width = '100%';
@@ -140,10 +145,10 @@ JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
     var el = this._super();
     el.className = 'file-field input-field';
     return el;
-  },
+  },    
   getDescription: function(text) {
     var el = document.createElement('p');
-    el.className = 'light';
+    el.className = 'light mze-description';
     el.style.margin = '-15px 0 15px 0';
     el.textContent = text;
     return el;
@@ -165,10 +170,11 @@ JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
 
     if(input.type === 'checkbox') {
       group = document.createElement('p');
+      group.className += ' mze-checkbox-group';
       group.appendChild(input);
     }
     else {
-      group.className += input.type === 'file' ? ' btn' : ' input-field';
+      group.className += (input.type === 'file' ? ' btn' : ' input-field mze-group');
       group.appendChild(input);
     }
 
@@ -179,34 +185,33 @@ JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
   },
   getButtonHolder: function() {
     var el = document.createElement('div');
-    el.className = 'col left';
+    el.className = 'col mze-button-holder';
     el.style.fontSize = '14px';
     return el;
   },
   getButton: function(text, icon, title) {
     var el =  this._super(text, icon, title);
-    el.className += 'waves-effect waves-light btn';
-    el.style.margin = '0 5px 0 5px';
+    el.className += 'waves-effect waves-light btn mze-button';
     return el;
   },
   getTable: function() {
     var el = document.createElement('table');
-    el.className = 'table bordered';
+    el.className = 'table bordered mze-table';
     el.style.padding = '5px';
     return el;
   },
   getTableControls: function() {
     var el = document.createElement('div');
-    el.className = 'card-action';
+    el.className = 'card-action mze-table-controls';
     return el;
   },
   setTableButtonStyle: function(button) {
-    button.className += ' right';
+    button.className += ' right mze-table-button-style';
   },
   addInputError: function(input,text) {
     if(!input.controlgroup) return;
     if (input.className.indexOf('invalid') < 0) {
-      input.className += ' invalid';
+      input.className += ' invalid mze-input-error';
     }
     input.controlgroup.children[1].dataset.error = text;
   },
@@ -218,13 +223,13 @@ JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
   },
   getTabHolder: function() {
     var el = document.createElement('div');
-    el.className = 'row';
+    el.className = 'row mze-tab-holder';
     el.innerHTML = "<div class='col s12'><ul class='tabs'></ul></div>";
     return el;
   },
   getTab: function(text) {
     var el = document.createElement('li');
-    el.className = 'tab col s3';
+    el.className = 'tab col s3 mze-tab';
     var a = document.createElement('a');
     a.setAttribute('href','#');
     a.appendChild(text);
@@ -236,7 +241,7 @@ JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
   },
   getTabContent: function() {
     var el = document.createElement('div');
-    el.className = 'col s12';
+    el.className = 'col s12 mze-tab-content';
     return el;
   },
   markTabContentActive: function(container) {
@@ -262,7 +267,7 @@ JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
   },
   getProgressBar: function() {
     var container = document.createElement('div');
-    container.className = 'progress';
+    container.className = 'progress mze-progress-bar';
 
     var bar = document.createElement('div');
     bar.className = 'determinate';
@@ -273,6 +278,7 @@ JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
   },
   updateProgressBar: function(progressBar, progress) {
     if (!progressBar) return;
+
     progressBar.firstChild.className = 'determinate';
     progressBar.firstChild.style.width = progress + "%";
   },
