@@ -286,7 +286,8 @@ editor.on("change",  function() {
         if(jsoneditor) jsoneditor.destroy();
         jsoneditor = new JSONEditor($editor,{
             schema: schema,
-            startval: startval
+            startval: startval,
+            keep_oneof_values: false
         });
         window.jsoneditor = jsoneditor;
 
