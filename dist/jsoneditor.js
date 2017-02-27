@@ -2655,13 +2655,15 @@ JSONEditor.defaults.editors.object = JSONEditor.AbstractEditor.extend({
       this.editjson_textarea.style.height = '170px';
       this.editjson_textarea.style.width = '300px';
       this.editjson_textarea.style.display = 'block';
-      this.editjson_save = this.getButton('Save','save','Save');
+      var save_text = this.translate('button_save');
+      this.editjson_save = this.getButton(save_text, 'save', save_text);
       this.editjson_save.addEventListener('click',function(e) {
         e.preventDefault();
         e.stopPropagation();
         self.saveJSON();
       });
-      this.editjson_cancel = this.getButton('Cancel','cancel','Cancel');
+      var cancel_text = this.translate('button_cancel');
+      this.editjson_cancel = this.getButton(cancel_text, 'cancel', cancel_text);
       this.editjson_cancel.addEventListener('click',function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -2681,9 +2683,10 @@ JSONEditor.defaults.editors.object = JSONEditor.AbstractEditor.extend({
       this.addproperty_list.style.overflowX = 'hidden';
       this.addproperty_list.style.paddingLeft = '5px';
       this.addproperty_list.setAttribute('class', 'property-selector');
-      this.addproperty_add = this.getButton('add','add','add');
+      var add_text = this.translate('button_add');
+      this.addproperty_add = this.getButton(add_text, 'add', add_text);
       this.addproperty_input = this.theme.getFormInputField('text');
-      this.addproperty_input.setAttribute('placeholder','Property name...');
+      this.addproperty_input.setAttribute('placeholder', this.translate('property_name'));
       this.addproperty_input.style.width = '220px';
       this.addproperty_input.style.marginBottom = '0';
       this.addproperty_input.style.display = 'inline-block';
@@ -2692,7 +2695,7 @@ JSONEditor.defaults.editors.object = JSONEditor.AbstractEditor.extend({
         e.stopPropagation();
         if(self.addproperty_input.value) {
           if(self.editors[self.addproperty_input.value]) {
-            window.alert('there is already a property with that name');
+            window.alert(self.translate('property_already_exist'));
             return;
           }
 
@@ -2779,7 +2782,7 @@ JSONEditor.defaults.editors.object = JSONEditor.AbstractEditor.extend({
       }
 
       // Edit JSON Button
-      this.editjson_button = this.getButton('JSON','edit','Edit JSON');
+      this.editjson_button = this.getButton(this.translate('button_json'), 'edit', this.translate('button_title_json'));
       this.editjson_button.addEventListener('click',function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -2797,7 +2800,9 @@ JSONEditor.defaults.editors.object = JSONEditor.AbstractEditor.extend({
       }
 
       // Object Properties Button
-      this.addproperty_button = this.getButton('Properties','edit','Object Properties');
+      this.addproperty_button = this.getButton(
+        this.translate('button_property'), 'edit', this.translate('button_title_property')
+      );
       this.addproperty_button.addEventListener('click',function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -2859,7 +2864,7 @@ JSONEditor.defaults.editors.object = JSONEditor.AbstractEditor.extend({
       this.hideEditJSON();
     }
     catch(e) {
-      window.alert('invalid JSON');
+      window.alert(this.translate('invalid_json'));
       throw e;
     }
   },
@@ -4706,7 +4711,7 @@ JSONEditor.defaults.editors["enum"] = JSONEditor.AbstractEditor.extend({
 
     var self = this;
     for(var i=0; i<this["enum"].length; i++) {
-      this.select_options[i] = this.options.enum_titles[i] || "Value "+(i+1);
+      this.select_options[i] = this.options.enum_titles[i] || this.translate('enum_value' [i+1]);
       this.html_values[i] = this.getHTML(this["enum"][i]);
     }
 
@@ -5777,10 +5782,12 @@ JSONEditor.defaults.editors.base64 = JSONEditor.AbstractEditor.extend({
     if(mime) mime = mime[1];
     
     if(!mime) {
-      this.preview.innerHTML = '<em>Invalid data URI</em>';
+      this.preview.innerHTML = '<em>' + this.translate('invalid_uri') + '</em>';
     }
     else {
-      this.preview.innerHTML = '<strong>Type:</strong> '+mime+', <strong>Size:</strong> '+Math.floor((this.value.length-this.value.split(',')[0].length-1)/1.33333)+' bytes';
+      this.preview.innerHTML = '<strong>' + this.translate('type') + ':</strong> ' + mime +
+      ', <strong>' + this.translate('size') + ':</strong> ' +
+      Math.floor((this.value.length-this.value.split(',')[0].length-1)/1.33333) + ' bytes';
       if(mime.substr(0,5)==="image") {
         this.preview.innerHTML += '<br>';
         var img = document.createElement('img');
@@ -5879,7 +5886,8 @@ JSONEditor.defaults.editors.upload = JSONEditor.AbstractEditor.extend({
 
     var file = this.uploader.files[0];
 
-    this.preview.innerHTML = '<strong>Type:</strong> '+mime+', <strong>Size:</strong> '+file.size+' bytes';
+    this.preview.innerHTML = '<strong>' + this.translate('type') + ':</strong> ' + mime +
+    ', <strong>' + this.translate('size') + ':</strong> ' + file.size + ' bytes';
     if(mime.substr(0,5)==="image") {
       this.preview.innerHTML += '<br>';
       var img = document.createElement('img');
@@ -5890,7 +5898,8 @@ JSONEditor.defaults.editors.upload = JSONEditor.AbstractEditor.extend({
     }
 
     this.preview.innerHTML += '<br>';
-    var uploadButton = this.getButton('Upload', 'upload', 'Upload');
+    var upload_text = this.translate('button_upload');
+    var uploadButton = this.getButton(upload_text, 'upload', upload_text);
     this.preview.appendChild(uploadButton);
     uploadButton.addEventListener('click',function(event) {
       event.preventDefault();
@@ -7693,6 +7702,115 @@ JSONEditor.defaults.translate = function(key, variables) {
 // Translation strings and default languages
 JSONEditor.defaults.default_language = 'en';
 JSONEditor.defaults.language = JSONEditor.defaults.default_language;
+
+// Miscellaneous Plugin Settings
+JSONEditor.plugins = {
+  ace: {
+    theme: ''
+  },
+  epiceditor: {
+
+  },
+  sceditor: {
+
+  },
+  select2: {
+    
+  },
+  selectize: {
+  }
+};
+
+// Default per-editor options
+$each(JSONEditor.defaults.editors, function(i,editor) {
+  JSONEditor.defaults.editors[i].options = editor.options || {};
+});
+
+// Set the default resolvers
+// Use "multiple" as a fall back for everything
+JSONEditor.defaults.resolvers.unshift(function(schema) {
+  if(typeof schema.type !== "string") return "multiple";
+});
+// If the type is not set but properties are defined, we can infer the type is actually object
+JSONEditor.defaults.resolvers.unshift(function(schema) {
+  // If the schema is a simple type
+  if(!schema.type && schema.properties ) return "object";
+});
+// If the type is set and it's a basic type, use the primitive editor
+JSONEditor.defaults.resolvers.unshift(function(schema) {
+  // If the schema is a simple type
+  if(typeof schema.type === "string") return schema.type;
+});
+// Boolean editors
+JSONEditor.defaults.resolvers.unshift(function(schema) {
+  if(schema.type === 'boolean') {
+    // If explicitly set to 'checkbox', use that
+    if(schema.format === "checkbox" || (schema.options && schema.options.checkbox)) {
+      return "checkbox";
+    }
+    // Otherwise, default to select menu
+    return (JSONEditor.plugins.selectize.enable) ? 'selectize' : 'select';
+  }
+});
+// Use the multiple editor for schemas where the `type` is set to "any"
+JSONEditor.defaults.resolvers.unshift(function(schema) {
+  // If the schema can be of any type
+  if(schema.type === "any") return "multiple";
+});
+// Editor for base64 encoded files
+JSONEditor.defaults.resolvers.unshift(function(schema) {
+  // If the schema can be of any type
+  if(schema.type === "string" && schema.media && schema.media.binaryEncoding==="base64") {
+    return "base64";
+  }
+});
+// Editor for uploading files
+JSONEditor.defaults.resolvers.unshift(function(schema) {
+  if(schema.type === "string" && schema.format === "url" && schema.options && schema.options.upload === true) {
+    if(window.FileReader) return "upload";
+  }
+});
+// Use the table editor for arrays with the format set to `table`
+JSONEditor.defaults.resolvers.unshift(function(schema) {
+  // Type `array` with format set to `table`
+  if(schema.type == "array" && schema.format == "table") {
+    return "table";
+  }
+});
+// Use the `select` editor for dynamic enumSource enums
+JSONEditor.defaults.resolvers.unshift(function(schema) {
+  if(schema.enumSource) return (JSONEditor.plugins.selectize.enable) ? 'selectize' : 'select';
+});
+// Use the `enum` or `select` editors for schemas with enumerated properties
+JSONEditor.defaults.resolvers.unshift(function(schema) {
+  if(schema["enum"]) {
+    if(schema.type === "array" || schema.type === "object") {
+      return "enum";
+    }
+    else if(schema.type === "number" || schema.type === "integer" || schema.type === "string") {
+      return (JSONEditor.plugins.selectize.enable) ? 'selectize' : 'select';
+    }
+  }
+});
+// Specialized editors for arrays of strings
+JSONEditor.defaults.resolvers.unshift(function(schema) {
+  if(schema.type === "array" && schema.items && !(Array.isArray(schema.items)) && schema.uniqueItems && ['string','number','integer'].indexOf(schema.items.type) >= 0) {
+    // For enumerated strings, number, or integers
+    if(schema.items.enum) {
+      return 'multiselect';
+    }
+    // For non-enumerated strings (tag editor)
+    else if(JSONEditor.plugins.selectize.enable && schema.items.type === "string") {
+      return 'arraySelectize';
+    }
+  }
+});
+// Use the multiple editor for schemas with `oneOf` set
+JSONEditor.defaults.resolvers.unshift(function(schema) {
+  // If this schema uses `oneOf` or `anyOf`
+  if(schema.oneOf || schema.anyOf) return "multiple";
+});
+
 JSONEditor.defaults.languages.en = {
   /**
    * When a property is not set
@@ -7866,116 +7984,308 @@ JSONEditor.defaults.languages.en = {
   /**
     * Title on Expand buttons
     */
-  button_expand: "Expand"
+  button_expand: "Expand",
+
+  /**
+   *  Invalid uri for upload files
+   */
+  invalid_uri: "Invalid data URI",
+  /**
+   *  Type of file details
+   */
+  type: "Type",
+  /**
+   * Size of file details
+   */
+  size: "Size",
+  /**
+   * For delimiter each element on enumeration
+   */
+  enum_value: "Value {{0}}",
+  /**
+   * Action to save objects
+   */
+  button_save: "Save",
+  /**
+   * Action to cancel objects
+   */
+  button_cancel: "Cancel",
+  /**
+   * Action to add objects
+   */
+  button_add: "Add",
+  /**
+   * Placeholder for input text to set new properties
+   */
+  property_name: "Property name...",
+  /**
+   * Test to shown on alerts when try to insert a property that already exists
+   */
+  property_already_exist: "There is already a property with that name",
+  /**
+   * Text for edit json button
+   */
+  button_json: 'JSON',
+  /**
+   * Title for edit json button
+   */
+  button_title_json: 'Edit JSON',
+  /**
+   * Text for edit json button
+   */
+  button_property: 'Properties',
+  /**
+   * Title for edit json button
+   */
+  button_title_property: 'Object Properties',
+  /**
+   * Invalid json
+   */
+  invalid_json: "Invalid JSON",
+  /**
+   * Text and title for upload button
+   */
+  button_upload: "Upload"
 };
 
-// Miscellaneous Plugin Settings
-JSONEditor.plugins = {
-  ace: {
-    theme: ''
-  },
-  epiceditor: {
 
-  },
-  sceditor: {
+JSONEditor.defaults.languages.es = {
+  /**
+   * When a property is not set
+   */
+  error_notset: "Debe inicializar la propiedad.",
+  /**
+   * When a string must not be empty
+   */
+  error_notempty: "Valor obligatorio.",
+  /**
+   * When a value is not one of the enumerated values
+   */
+  error_enum: "El valor debe ser uno de los valores enumerados.",
+  /**
+   * When a value doesn't validate any schema of a 'anyOf' combination
+   */
+  error_anyOf: "El valor debe validarse contra al menos uno de los esquemas proporcionados.",
+  /**
+   * When a value doesn't validate
+   * @variables This key takes one variable: The number of schemas the value does not validate
+   */
+  error_oneOf: 'El valor debe validarse contra exactamente uno de los esquemas proporcionados. Actualmente valida contra {{0}} de los esquemas.',
+  /**
+   * When a value does not validate a 'not' schema
+   */
+  error_not: "El valor no debe validarse contra el esquema proporcionado.",
+  /**
+   * When a value does not match any of the provided types
+   */
+  error_type_union: "El valor debe ser uno de los tipos proporcionados.",
+  /**
+   * When a value does not match the given type
+   * @variables This key takes one variable: The type the value should be of
+   */
+  error_type: "El valor debe ser del tipo {{0}}.",
+  /**
+   *  When the value validates one of the disallowed types
+   */
+  error_disallow_union: "El valor no puede ser uno de los tipos no permitidos.",
+  /**
+   *  When the value validates a disallowed type
+   * @variables This key takes one variable: The type the value should not be of
+   */
+  error_disallow: "El valor no puede ser del tipo {{0}}.",
+  /**
+   * When a value is not a multiple of or divisible by a given number
+   * @variables This key takes one variable: The number mentioned above
+   */
+  error_multipleOf: "El valor debe ser un múltiplo de {{0}}.",
+  /**
+   * When a value is greater than it's supposed to be (exclusive)
+   * @variables This key takes one variable: The maximum
+   */
+  error_maximum_excl: "El valor debe ser inferior a {{0}}.",
+  /**
+   * When a value is greater than it's supposed to be (inclusive
+   * @variables This key takes one variable: The maximum
+   */
+  error_maximum_incl: "El valor debe ser como mucho {{0}}.",
+  /**
+   * When a value is lesser than it's supposed to be (exclusive)
+   * @variables This key takes one variable: The minimum
+   */
+  error_minimum_excl: "El valor debe ser mayor que {{0}}.",
+  /**
+   * When a value is lesser than it's supposed to be (inclusive)
+   * @variables This key takes one variable: The minimum
+   */
+  error_minimum_incl: "El valor debe ser al menos {{0}}.",
+  /**
+   * When a value have too many characters
+   * @variables This key takes one variable: The maximum character count
+   */
+  error_maxLength: "El valor debe tener como máximo {{0}} caracteres.",
+  /**
+   * When a value does not have enough characters
+   * @variables This key takes one variable: The minimum character count
+   */
+  error_minLength: "El valor debe tener al menos {{0}} caracteres.",
+  /**
+   * When a value does not match a given pattern
+   */
+  error_pattern: "El valor debe coincidir con el patrón {{0}}.",
+  /**
+   * When an array has additional items whereas it is not supposed to
+   */
+  error_additionalItems: "No se permiten elementos adicionales en esta matriz.",
+  /**
+   * When there are to many items in an array
+   * @variables This key takes one variable: The maximum item count
+   */
+  error_maxItems: "El valor debe tener como máximo {{0}} elementos.",
+  /**
+   * When there are not enough items in an array
+   * @variables This key takes one variable: The minimum item count
+   */
+  error_minItems: "El valor debe tener al menos {{0}} elementos.",
+  /**
+   * When an array is supposed to have unique items but has duplicates
+   */
+  error_uniqueItems: "El array debe tener elementos únicos.",
+  /**
+   * When there are too many properties in an object
+   * @variables This key takes one variable: The maximum property count
+   */
+  error_maxProperties: "El objeto debe tener como máximo {{0}} propiedades.",
+  /**
+   * When there are not enough properties in an object
+   * @variables This key takes one variable: The minimum property count
+   */
+  error_minProperties: "El objeto debe tener al menos {{0}} propiedades.",
+  /**
+   * When a required property is not defined
+   * @variables This key takes one variable: The name of the missing property
+   */
+  error_required: "La propiedad '{{0}}' es obligatoria para el Objeto.",
+  /**
+   * When there is an additional property is set whereas there should be none
+   * @variables This key takes one variable: The name of the additional property
+   */
+  error_additional_properties: "Se establece la propiedad {{0}}, pero no se permiten propiedades adicionales.",
+  /**
+   * When a dependency is not resolved
+   * @variables This key takes one variable: The name of the missing property for the dependency
+   */
+  error_dependency: "Debe tener la propiedad {{0}}.",
+  /**
+   * Text on Delete All buttons
+   */
+  button_delete_all: "Todo",
+  /**
+   * Title on Delete All buttons
+   */
+  button_delete_all_title: "Borrar todo",
+  /**
+    * Text on Delete Last buttons
+    * @variable This key takes one variable: The title of object to delete
+    */
+  button_delete_last: "Último {{0}}",
+  /**
+    * Title on Delete Last buttons
+    * @variable This key takes one variable: The title of object to delete
+    */
+  button_delete_last_title: "Borrar último {{0}}",
+  /**
+    * Title on Add Row buttons
+    * @variable This key takes one variable: The title of object to add
+    */
+  button_add_row_title: "Añadir {{0}}.",
+  /**
+    * Title on Move Down buttons
+    */
+  button_move_down_title: "Abajo",
+  /**
+    * Title on Move Up buttons
+    */
+  button_move_up_title: "Arriba",
+  /**
+    * Title on Delete Row buttons
+    * @variable This key takes one variable: The title of object to delete
+    */
+  button_delete_row_title: "Borrar {{0}}",
+  /**
+    * Title on Delete Row buttons, short version (no parameter with the object title)
+    */
+  button_delete_row_title_short: "Borrar",
+  /**
+    * Title on Collapse buttons
+    */
+  button_collapse: "Contraer",
+  /**
+    * Title on Expand buttons
+    */
+  button_expand: "Expandir",
 
-  },
-  select2: {
-    
-  },
-  selectize: {
-  }
+  /**
+   *  Invalid uri for upload files
+   */
+  invalid_uri: "Datos URI inválidos.",
+  /**
+   *  Type of file details
+   */
+  type: "Tipo",
+  /**
+   * Size of file details
+   */
+  size: "Tamaño",
+  /**
+   * For delimiter each element on enumeration
+   */
+  enum_value: "Valor {{0}}",
+  /**
+   * Action to save objects
+   */
+  button_save: "Guardar",
+  /**
+   * Action to cancel objects
+   */
+  button_cancel: "Cancelar",
+  /**
+   * Action to add objects
+   */
+  button_add: "Añadir",
+  /**
+   * Placeholder for input text to set new properties
+   */
+  property_name: "Nombre propiedad...",
+  /**
+   * Test to shown on alerts when try to insert a property that already exists
+   */
+  property_already_exist: "Ya hay una propiedad con ese nombre.",
+  /**
+   * Text for edit json button
+   */
+  button_json: 'JSON',
+  /**
+   * Title for edit json button
+   */
+  button_title_json: 'Editar JSON',
+  /**
+   * Text for edit json button
+   */
+  button_property: 'Propiedades',
+  /**
+   * Title for edit json button
+   */
+  button_title_property: 'Propiedad',
+  /**
+   * Invalid json
+   */
+  invalid_json: "JSON inválido",
+  /**
+   * Text and title for upload button
+   */
+  button_upload: "Subir"
 };
 
-// Default per-editor options
-$each(JSONEditor.defaults.editors, function(i,editor) {
-  JSONEditor.defaults.editors[i].options = editor.options || {};
-});
-
-// Set the default resolvers
-// Use "multiple" as a fall back for everything
-JSONEditor.defaults.resolvers.unshift(function(schema) {
-  if(typeof schema.type !== "string") return "multiple";
-});
-// If the type is not set but properties are defined, we can infer the type is actually object
-JSONEditor.defaults.resolvers.unshift(function(schema) {
-  // If the schema is a simple type
-  if(!schema.type && schema.properties ) return "object";
-});
-// If the type is set and it's a basic type, use the primitive editor
-JSONEditor.defaults.resolvers.unshift(function(schema) {
-  // If the schema is a simple type
-  if(typeof schema.type === "string") return schema.type;
-});
-// Boolean editors
-JSONEditor.defaults.resolvers.unshift(function(schema) {
-  if(schema.type === 'boolean') {
-    // If explicitly set to 'checkbox', use that
-    if(schema.format === "checkbox" || (schema.options && schema.options.checkbox)) {
-      return "checkbox";
-    }
-    // Otherwise, default to select menu
-    return (JSONEditor.plugins.selectize.enable) ? 'selectize' : 'select';
-  }
-});
-// Use the multiple editor for schemas where the `type` is set to "any"
-JSONEditor.defaults.resolvers.unshift(function(schema) {
-  // If the schema can be of any type
-  if(schema.type === "any") return "multiple";
-});
-// Editor for base64 encoded files
-JSONEditor.defaults.resolvers.unshift(function(schema) {
-  // If the schema can be of any type
-  if(schema.type === "string" && schema.media && schema.media.binaryEncoding==="base64") {
-    return "base64";
-  }
-});
-// Editor for uploading files
-JSONEditor.defaults.resolvers.unshift(function(schema) {
-  if(schema.type === "string" && schema.format === "url" && schema.options && schema.options.upload === true) {
-    if(window.FileReader) return "upload";
-  }
-});
-// Use the table editor for arrays with the format set to `table`
-JSONEditor.defaults.resolvers.unshift(function(schema) {
-  // Type `array` with format set to `table`
-  if(schema.type == "array" && schema.format == "table") {
-    return "table";
-  }
-});
-// Use the `select` editor for dynamic enumSource enums
-JSONEditor.defaults.resolvers.unshift(function(schema) {
-  if(schema.enumSource) return (JSONEditor.plugins.selectize.enable) ? 'selectize' : 'select';
-});
-// Use the `enum` or `select` editors for schemas with enumerated properties
-JSONEditor.defaults.resolvers.unshift(function(schema) {
-  if(schema["enum"]) {
-    if(schema.type === "array" || schema.type === "object") {
-      return "enum";
-    }
-    else if(schema.type === "number" || schema.type === "integer" || schema.type === "string") {
-      return (JSONEditor.plugins.selectize.enable) ? 'selectize' : 'select';
-    }
-  }
-});
-// Specialized editors for arrays of strings
-JSONEditor.defaults.resolvers.unshift(function(schema) {
-  if(schema.type === "array" && schema.items && !(Array.isArray(schema.items)) && schema.uniqueItems && ['string','number','integer'].indexOf(schema.items.type) >= 0) {
-    // For enumerated strings, number, or integers
-    if(schema.items.enum) {
-      return 'multiselect';
-    }
-    // For non-enumerated strings (tag editor)
-    else if(JSONEditor.plugins.selectize.enable && schema.items.type === "string") {
-      return 'arraySelectize';
-    }
-  }
-});
-// Use the multiple editor for schemas with `oneOf` set
-JSONEditor.defaults.resolvers.unshift(function(schema) {
-  // If this schema uses `oneOf` or `anyOf`
-  if(schema.oneOf || schema.anyOf) return "multiple";
-});
 
 /**
  * This is a small wrapper for using JSON Editor like a typical jQuery plugin.

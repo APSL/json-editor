@@ -17,7 +17,7 @@ JSONEditor.defaults.editors["enum"] = JSONEditor.AbstractEditor.extend({
 
     var self = this;
     for(var i=0; i<this["enum"].length; i++) {
-      this.select_options[i] = this.options.enum_titles[i] || "Value "+(i+1);
+      this.select_options[i] = this.options.enum_titles[i] || this.translate('enum_value' [i+1]);
       this.html_values[i] = this.getHTML(this["enum"][i]);
     }
 
