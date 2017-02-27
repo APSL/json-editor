@@ -60,7 +60,8 @@ JSONEditor.defaults.editors.upload = JSONEditor.AbstractEditor.extend({
 
     var file = this.uploader.files[0];
 
-    this.preview.innerHTML = '<strong>Type:</strong> '+mime+', <strong>Size:</strong> '+file.size+' bytes';
+    this.preview.innerHTML = '<strong>' + this.translate('type') + ':</strong> ' + mime +
+    ', <strong>' + this.translate('size') + ':</strong> ' + file.size + ' bytes';
     if(mime.substr(0,5)==="image") {
       this.preview.innerHTML += '<br>';
       var img = document.createElement('img');
@@ -71,7 +72,8 @@ JSONEditor.defaults.editors.upload = JSONEditor.AbstractEditor.extend({
     }
 
     this.preview.innerHTML += '<br>';
-    var uploadButton = this.getButton('Upload', 'upload', 'Upload');
+    var upload_text = this.translate('button_upload');
+    var uploadButton = this.getButton(upload_text, 'upload', upload_text);
     this.preview.appendChild(uploadButton);
     uploadButton.addEventListener('click',function(event) {
       event.preventDefault();
