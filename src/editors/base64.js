@@ -52,10 +52,12 @@ JSONEditor.defaults.editors.base64 = JSONEditor.AbstractEditor.extend({
     if(mime) mime = mime[1];
     
     if(!mime) {
-      this.preview.innerHTML = '<em>Invalid data URI</em>';
+      this.preview.innerHTML = '<em>' + this.translate('invalid_uri') + '</em>';
     }
     else {
-      this.preview.innerHTML = '<strong>Type:</strong> '+mime+', <strong>Size:</strong> '+Math.floor((this.value.length-this.value.split(',')[0].length-1)/1.33333)+' bytes';
+      this.preview.innerHTML = '<strong>' + this.translate('type') + ':</strong> ' + mime +
+      ', <strong>' + this.translate('size') + ':</strong> ' +
+      Math.floor((this.value.length-this.value.split(',')[0].length-1)/1.33333) + ' bytes';
       if(mime.substr(0,5)==="image") {
         this.preview.innerHTML += '<br>';
         var img = document.createElement('img');

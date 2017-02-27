@@ -55,13 +55,15 @@ module.exports = function(grunt) {
 
           // Set the defaults
           'src/defaults.js',
+          'src/languages/en.js',
+          'src/languages/es.js',
 
           // Wrapper for $.fn style initialization
           'src/jquery.js',
 
           // End the closure
           'src/outro.js'
-        ],
+        ]
       }
     },
     uglify: {
