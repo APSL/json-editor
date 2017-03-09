@@ -223,12 +223,6 @@ JSONEditor.AbstractTheme = Class.extend({
     el.style.marginRight = '5px';
     return el;
   },
-  getPropertyNameInputField: function() {
-    var el = this.getFormInputField('text');
-    el.style.width = 'auto';
-    el.style.marginRight = '5px';
-    return el;
-  },
   afterInputReady: function(input) {
 
   },

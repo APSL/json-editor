@@ -145,7 +145,7 @@ JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
     var el = this._super();
     el.className = 'file-field input-field';
     return el;
-  },    
+  },
   getDescription: function(text) {
     var el = document.createElement('p');
     el.className = 'light mze-description';

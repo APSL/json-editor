@@ -101,18 +101,22 @@ JSONEditor.defaults.editors.array = JSONEditor.AbstractEditor.extend({
       else {
         this.panel = this.theme.getIndentedPanel();
         this.container.appendChild(this.panel);
-        this.row_holder = document.createElement('div');
+        this.row_holder = this.theme.getGridContainer();
         this.panel.appendChild(this.row_holder);
-        this.controls = this.theme.getButtonHolder();
-        this.panel.appendChild(this.controls);
+        this.controls_container = this.theme.getButtonHolder();
+        this.controls = this.theme.getTableControls();
+        this.controls_container.appendChild(this.controls);
+        this.panel.appendChild(this.controls_container);
       }
     }
     else {
         this.panel = this.theme.getIndentedPanel();
         this.container.appendChild(this.panel);
+        this.controls_container = this.theme.getButtonHolder();
         this.controls = this.theme.getButtonHolder();
-        this.panel.appendChild(this.controls);
-        this.row_holder = document.createElement('div');
+        this.controls_container.appendChild(this.controls);
+        this.panel.appendChild(this.controls_container);
+        this.row_holder = this.theme.getGridContainer();
         this.panel.appendChild(this.row_holder);
     }
 
@@ -192,11 +196,16 @@ JSONEditor.defaults.editors.array = JSONEditor.AbstractEditor.extend({
     else if(item_info.child_editors) {
       holder = this.theme.getChildEditorHolder();
     }
-    else {
-      holder = this.theme.getIndentedPanel();
-    }
 
-    this.row_holder.appendChild(holder);
+    if (this.tabs_holder || item_info.child_editors) {
+      this.row_holder.appendChild(holder);
+    }
+    else {
+      var container = this.theme.getIndentedPanel();
+      holder = this.theme.getGridContainer();
+      container.appendChild(holder);
+      this.row_holder.appendChild(container);
+    }
 
     var ret = this.jsoneditor.createEditor(editor,{
       jsoneditor: this.jsoneditor,
@@ -211,7 +220,7 @@ JSONEditor.defaults.editors.array = JSONEditor.AbstractEditor.extend({
     ret.postBuild();
 
     if(!ret.title_controls) {
-      ret.array_controls = this.theme.getButtonHolder();
+      ret.array_controls = this.theme.getGridContainer();
       holder.appendChild(ret.array_controls);
     }
     
@@ -461,8 +470,10 @@ JSONEditor.defaults.editors.array = JSONEditor.AbstractEditor.extend({
 
       self.theme.addTab(self.tabs_holder, self.rows[i].tab);
     }
-    
-    var controls_holder = self.rows[i].title_controls || self.rows[i].array_controls;
+
+    var controls = self.rows[i].title_controls || self.rows[i].array_controls;
+    var controls_holder = self.theme.getButtonHolder();
+    controls.appendChild(controls_holder);
     
     // Buttons to delete row, move row up, and move row down
     if(!self.hide_delete_buttons) {

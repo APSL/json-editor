@@ -170,7 +170,6 @@ JSONEditor.defaults.editors.multiple = JSONEditor.AbstractEditor.extend({
     this.switcher_container = this.theme.getSwitcherContainer();
     this.header = this.theme.getFormInputLabel(this.getTitle());
     this.switcher = this.theme.getSwitcher(this.display_text);
-    container.appendChild(this.switcher);
     this.switcher.addEventListener('change',function(e) {
       e.preventDefault();
       e.stopPropagation();
