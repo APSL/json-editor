@@ -5847,7 +5847,8 @@ JSONEditor.defaults.editors.upload = JSONEditor.AbstractEditor.extend({
   },
   build: function() {    
     var self = this;
-    this.title = this.header = this.label = this.theme.getFormInputLabel(this.getTitle());
+    this.wrapper = this.theme.getFileInputWrapper();
+    this.title = this.header = this.label = this.theme.getFileInputLabel(this.getTitle());
 
     // Input that holds the base64 string
     this.input = this.theme.getFormInputField('hidden');
@@ -5885,7 +5886,12 @@ JSONEditor.defaults.editors.upload = JSONEditor.AbstractEditor.extend({
     this.container.appendChild(this.preview);
 
     this.control = this.theme.getFormControl(this.label, this.uploader||this.input, this.preview);
-    this.container.appendChild(this.control);
+    this.decorator = this.theme.getFileInputDecorator();
+
+    this.wrapper.appendChild(this.control);
+    this.wrapper.appendChild(this.decorator);
+
+    this.container.appendChild(this.wrapper);
   },
   refreshPreview: function() {
     if(this.last_preview === this.preview_value) return;
@@ -6225,6 +6231,10 @@ JSONEditor.AbstractTheme = Class.extend({
     el.appendChild(document.createTextNode(text));
     return el;
   },
+  getFileInputLabel: function(text) {
+    return this.getFormInputLabel();
+  },
+  getFileInputDecorator: function() {},
   getCheckboxLabel: function(text) {
     var el = this.getFormInputLabel(text);
     el.style.fontWeight = 'normal';
@@ -6344,6 +6354,9 @@ JSONEditor.AbstractTheme = Class.extend({
     el.style.marginBottom = '0';
     el.style.display = 'inline-block';
     return el;
+  },
+  getFileInputWrapper: function() {
+    return document.createElement('div');
   },
   getPropertyNameInputField: function() {
     var el = this.getFormInputField('text');
@@ -7540,6 +7553,20 @@ JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
   getFormInputLabel: function(text) {
     return this._super(text);
   },
+  getFileInputLabel: function(text) {
+    var el = document.createElement('span');
+    el.appendChild(document.createTextNode(text));
+    return el;
+  },
+  getFileInputDecorator: function() {
+    var el = document.createElement('div');
+    el.className = 'file-path-wrapper';
+    var input = document.createElement('input');
+    input.setAttribute('type', 'test');
+    input.className = 'file-path validate';
+    el.appendChild(input);
+    return el;
+  },
   getHeader: function(text) {
     var el = document.createElement('h4');
     el.className = 'row';
@@ -7571,7 +7598,6 @@ JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
     var el = document.createElement('div');
     el.className = 'switcher-container';
     return el;
-
   },
   getSwitcher: function(options) {
     var switcher = this.getSelectInput(options);
@@ -7614,6 +7640,11 @@ JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
     el.style.width = '100%';
     return el;
   },
+  getFileInputWrapper: function() {
+    var el = this._super();
+    el.className = 'file-field input-field';
+    return el;
+  },
   getDescription: function(text) {
     var el = document.createElement('p');
     el.className = 'light';
@@ -7641,7 +7672,7 @@ JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
       group.appendChild(input);
     }
     else {
-      group.className += ' input-field';
+      group.className += input.type === 'file' ? ' btn' : ' input-field';
       group.appendChild(input);
     }
 
