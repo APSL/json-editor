@@ -49,6 +49,20 @@ JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
   getFormInputLabel: function(text) {
     return this._super(text);
   },
+  getFileInputLabel: function(text) {
+    var el = document.createElement('span');
+    el.appendChild(document.createTextNode(text));
+    return el;
+  },
+  getFileInputDecorator: function() {
+    var el = document.createElement('div');
+    el.className = 'file-path-wrapper';
+    var input = document.createElement('input');
+    input.setAttribute('type', 'text');
+    input.className = 'file-path validate';
+    el.appendChild(input);
+    return el;
+  },
   getHeader: function(text) {
     var el = document.createElement('h4');
     el.className = 'row mze-header';
@@ -127,6 +141,11 @@ JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
     el.style.width = '100%';
     return el;
   },
+  getFileInputWrapper: function() {
+    var el = this._super();
+    el.className = 'file-field input-field';
+    return el;
+  },    
   getDescription: function(text) {
     var el = document.createElement('p');
     el.className = 'light mze-description';
@@ -260,12 +279,13 @@ JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
   updateProgressBar: function(progressBar, progress) {
     if (!progressBar) return;
 
+    progressBar.firstChild.className = 'determinate';
     progressBar.firstChild.style.width = progress + "%";
   },
   updateProgressBarUnknown: function(progressBar) {
     if (!progressBar) return;
 
-    progressBar.className = 'indeterminate';
+    progressBar.firstChild.className = 'indeterminate';
     progressBar.firstChild.style = '';
   }
 });

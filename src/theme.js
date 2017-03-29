@@ -90,6 +90,10 @@ JSONEditor.AbstractTheme = Class.extend({
     el.appendChild(document.createTextNode(text));
     return el;
   },
+  getFileInputLabel: function(text) {
+    return this.getFormInputLabel();
+  },
+  getFileInputDecorator: function() {},
   getCheckboxLabel: function(text) {
     var el = this.getFormInputLabel(text);
     el.style.fontWeight = 'normal';
@@ -209,6 +213,9 @@ JSONEditor.AbstractTheme = Class.extend({
     el.style.marginBottom = '0';
     el.style.display = 'inline-block';
     return el;
+  },
+  getFileInputWrapper: function() {
+    return document.createElement('div');
   },
   getPropertyNameInputField: function() {
     var el = this.getFormInputField('text');
