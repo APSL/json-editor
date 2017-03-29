@@ -4,7 +4,8 @@ JSONEditor.defaults.editors.base64 = JSONEditor.AbstractEditor.extend({
   },
   build: function() {    
     var self = this;
-    this.title = this.header = this.label = this.theme.getFormInputLabel(this.getTitle());
+    this.wrapper = this.theme.getFileInputWrapper();
+    this.title = this.header = this.label = this.theme.getFileInputLabel(this.getTitle());
 
     // Input that holds the base64 string
     this.input = this.theme.getFormInputField('hidden');
@@ -16,18 +17,25 @@ JSONEditor.defaults.editors.base64 = JSONEditor.AbstractEditor.extend({
       
       // File uploader
       this.uploader = this.theme.getFormInputField('file');
-      
+
       this.uploader.addEventListener('change',function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        
+        if (self.theme.getProgressBar) {
+          self.progressBar = self.theme.getProgressBar();
+          self.wrapper.appendChild(self.progressBar);
+        }
+
         if(this.files && this.files.length) {
           var fr = new FileReader();
+          fr.onloadstart = function(evt) {
+            self.updateProgress();
+          };
           fr.onload = function(evt) {
-            self.value = evt.target.result;
-            self.refreshPreview();
-            self.onChange(true);
+            self.onLoadFileReader(evt);
             fr = null;
+          };
+          fr.onloadend = function(evt) {
+            self.updateProgress(100);
+            setTimeout(function() {self.progressBar.remove();}, 200);
           };
           fr.readAsDataURL(this.files[0]);
         }
@@ -35,10 +43,14 @@ JSONEditor.defaults.editors.base64 = JSONEditor.AbstractEditor.extend({
     }
 
     this.preview = this.theme.getFormInputDescription(this.schema.description);
-    this.container.appendChild(this.preview);
-
     this.control = this.theme.getFormControl(this.label, this.uploader||this.input, this.preview);
-    this.container.appendChild(this.control);
+    this.decorator = this.theme.getFileInputDecorator();
+
+    this.wrapper.appendChild(this.control);
+    if (this.decorator) this.wrapper.appendChild(this.decorator);
+    this.wrapper.appendChild(this.preview);
+
+    this.container.appendChild(this.wrapper);
   },
   refreshPreview: function() {
     if(this.last_preview === this.value) return;
@@ -89,5 +101,16 @@ JSONEditor.defaults.editors.base64 = JSONEditor.AbstractEditor.extend({
     if(this.uploader && this.uploader.parentNode) this.uploader.parentNode.removeChild(this.uploader);
 
     this._super();
+  },
+  onLoadFileReader: function(event) {
+    this.setValue(event.target.result);
+    this.refreshPreview();
+    this.onChange(true);
+  },
+  updateProgress: function(progress) {
+    if (this.progressBar) {
+      if (progress) this.theme.updateProgressBar(this.progressBar, progress);
+      else this.theme.updateProgressBarUnknown(this.progressBar);
+    }
   }
 });
