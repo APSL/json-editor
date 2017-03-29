@@ -5768,7 +5768,8 @@ JSONEditor.defaults.editors.base64 = JSONEditor.AbstractEditor.extend({
   },
   build: function() {    
     var self = this;
-    this.title = this.header = this.label = this.theme.getFormInputLabel(this.getTitle());
+    this.wrapper = this.theme.getFileInputWrapper();
+    this.title = this.header = this.label = this.theme.getFileInputLabel(this.getTitle());
 
     // Input that holds the base64 string
     this.input = this.theme.getFormInputField('hidden');
@@ -5780,18 +5781,25 @@ JSONEditor.defaults.editors.base64 = JSONEditor.AbstractEditor.extend({
       
       // File uploader
       this.uploader = this.theme.getFormInputField('file');
-      
+
       this.uploader.addEventListener('change',function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        
+        if (self.theme.getProgressBar) {
+          self.progressBar = self.theme.getProgressBar();
+          self.wrapper.appendChild(self.progressBar);
+        }
+
         if(this.files && this.files.length) {
           var fr = new FileReader();
+          fr.onloadstart = function(evt) {
+            self.updateProgress();
+          };
           fr.onload = function(evt) {
-            self.value = evt.target.result;
-            self.refreshPreview();
-            self.onChange(true);
+            self.onLoadFileReader(evt);
             fr = null;
+          };
+          fr.onloadend = function(evt) {
+            self.updateProgress(100);
+            setTimeout(function() {self.progressBar.remove();}, 200);
           };
           fr.readAsDataURL(this.files[0]);
         }
@@ -5799,10 +5807,14 @@ JSONEditor.defaults.editors.base64 = JSONEditor.AbstractEditor.extend({
     }
 
     this.preview = this.theme.getFormInputDescription(this.schema.description);
-    this.container.appendChild(this.preview);
-
     this.control = this.theme.getFormControl(this.label, this.uploader||this.input, this.preview);
-    this.container.appendChild(this.control);
+    this.decorator = this.theme.getFileInputDecorator();
+
+    this.wrapper.appendChild(this.control);
+    if (this.decorator) this.wrapper.appendChild(this.decorator);
+    this.wrapper.appendChild(this.preview);
+
+    this.container.appendChild(this.wrapper);
   },
   refreshPreview: function() {
     if(this.last_preview === this.value) return;
@@ -5855,6 +5867,17 @@ JSONEditor.defaults.editors.base64 = JSONEditor.AbstractEditor.extend({
     if(this.uploader && this.uploader.parentNode) this.uploader.parentNode.removeChild(this.uploader);
 
     this._super();
+  },
+  onLoadFileReader: function(event) {
+    this.setValue(event.target.result);
+    this.refreshPreview();
+    this.onChange(true);
+  },
+  updateProgress: function(progress) {
+    if (this.progressBar) {
+      if (progress) this.theme.updateProgressBar(this.progressBar, progress);
+      else this.theme.updateProgressBarUnknown(this.progressBar);
+    }
   }
 });
 
@@ -5864,7 +5887,8 @@ JSONEditor.defaults.editors.upload = JSONEditor.AbstractEditor.extend({
   },
   build: function() {    
     var self = this;
-    this.title = this.header = this.label = this.theme.getFormInputLabel(this.getTitle());
+    this.wrapper = this.theme.getFileInputWrapper();
+    this.title = this.header = this.label = this.theme.getFileInputLabel(this.getTitle());
 
     // Input that holds the base64 string
     this.input = this.theme.getFormInputField('hidden');
@@ -5879,15 +5903,10 @@ JSONEditor.defaults.editors.upload = JSONEditor.AbstractEditor.extend({
       this.uploader = this.theme.getFormInputField('file');
       
       this.uploader.addEventListener('change',function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        
         if(this.files && this.files.length) {
           var fr = new FileReader();
           fr.onload = function(evt) {
-            self.preview_value = evt.target.result;
-            self.refreshPreview();
-            self.onChange(true);
+            self.onLoadFileReader(evt);
             fr = null;
           };
           fr.readAsDataURL(this.files[0]);
@@ -5899,10 +5918,14 @@ JSONEditor.defaults.editors.upload = JSONEditor.AbstractEditor.extend({
     if (!description) description = '';
 
     this.preview = this.theme.getFormInputDescription(description);
-    this.container.appendChild(this.preview);
-
     this.control = this.theme.getFormControl(this.label, this.uploader||this.input, this.preview);
-    this.container.appendChild(this.control);
+    this.decorator = this.theme.getFileInputDecorator();
+
+    this.wrapper.appendChild(this.control);
+    if (this.decorator) this.wrapper.appendChild(this.decorator);
+    this.wrapper.appendChild(this.preview);
+
+    this.container.appendChild(this.wrapper);
   },
   refreshPreview: function() {
     if(this.last_preview === this.preview_value) return;
@@ -5992,6 +6015,11 @@ JSONEditor.defaults.editors.upload = JSONEditor.AbstractEditor.extend({
     if(this.uploader && this.uploader.parentNode) this.uploader.parentNode.removeChild(this.uploader);
 
     this._super();
+  },
+  onLoadFileReader: function(event) {
+    this.preview_value = event.target.result;
+    this.refreshPreview();
+    this.onChange(true);
   }
 });
 
@@ -6244,6 +6272,10 @@ JSONEditor.AbstractTheme = Class.extend({
     el.appendChild(document.createTextNode(text));
     return el;
   },
+  getFileInputLabel: function(text) {
+    return this.getFormInputLabel();
+  },
+  getFileInputDecorator: function() {},
   getCheckboxLabel: function(text) {
     var el = this.getFormInputLabel(text);
     el.style.fontWeight = 'normal';
@@ -6363,6 +6395,9 @@ JSONEditor.AbstractTheme = Class.extend({
     el.style.marginBottom = '0';
     el.style.display = 'inline-block';
     return el;
+  },
+  getFileInputWrapper: function() {
+    return document.createElement('div');
   },
   getPropertyNameInputField: function() {
     var el = this.getFormInputField('text');
@@ -7559,6 +7594,20 @@ JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
   getFormInputLabel: function(text) {
     return this._super(text);
   },
+  getFileInputLabel: function(text) {
+    var el = document.createElement('span');
+    el.appendChild(document.createTextNode(text));
+    return el;
+  },
+  getFileInputDecorator: function() {
+    var el = document.createElement('div');
+    el.className = 'file-path-wrapper';
+    var input = document.createElement('input');
+    input.setAttribute('type', 'text');
+    input.className = 'file-path validate';
+    el.appendChild(input);
+    return el;
+  },
   getHeader: function(text) {
     var el = document.createElement('h4');
     el.className = 'row mze-header';
@@ -7637,6 +7686,11 @@ JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
     el.style.width = '100%';
     return el;
   },
+  getFileInputWrapper: function() {
+    var el = this._super();
+    el.className = 'file-field input-field';
+    return el;
+  },
   getDescription: function(text) {
     var el = document.createElement('p');
     el.className = 'light mze-description';
@@ -7665,7 +7719,7 @@ JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
       group.appendChild(input);
     }
     else {
-      group.className += ' input-field mze-group';
+      group.className += (input.type === 'file' ? ' btn' : ' input-field mze-group');
       group.appendChild(input);
     }
 
@@ -7770,12 +7824,13 @@ JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
   updateProgressBar: function(progressBar, progress) {
     if (!progressBar) return;
 
+    progressBar.firstChild.className = 'determinate';
     progressBar.firstChild.style.width = progress + "%";
   },
   updateProgressBarUnknown: function(progressBar) {
     if (!progressBar) return;
 
-    progressBar.className = 'indeterminate';
+    progressBar.firstChild.className = 'indeterminate';
     progressBar.firstChild.style = '';
   }
 });
