@@ -122,6 +122,9 @@ JSONEditor.defaults.editors.upload = JSONEditor.AbstractEditor.extend({
     if(this.value !== val) {
       this.value = val;
       this.input.value = this.value;
+      if (val && this.decorator) {
+        this.decorator.firstChild.value = val.split('/').pop();
+      }
       this.onChange();
     }
   },
