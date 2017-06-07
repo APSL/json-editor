@@ -34,13 +34,17 @@ JSONEditor.defaults.editors.upload = JSONEditor.AbstractEditor.extend({
     var description = this.schema.description;
     if (!description) description = '';
 
-    this.preview = this.theme.getFormInputDescription(description);
+    this.preview = this.theme.getFileInputPreview();
+    this.information = this.theme.getFormInputDescription(description);
     this.control = this.theme.getFormControl(this.label, this.uploader||this.input, this.preview);
     this.decorator = this.theme.getFileInputDecorator();
 
     this.wrapper.appendChild(this.control);
-    if (this.decorator) this.wrapper.appendChild(this.decorator);
-    this.wrapper.appendChild(this.preview);
+    if (this.decorator) {
+        this.decorator.appendChild(this.preview);
+        this.wrapper.appendChild(this.decorator);
+    }
+    if (this.information) this.wrapper.appendChild(this.information);
 
     this.container.appendChild(this.wrapper);
   },
@@ -48,7 +52,7 @@ JSONEditor.defaults.editors.upload = JSONEditor.AbstractEditor.extend({
     if(this.last_preview === this.preview_value) return;
     this.last_preview = this.preview_value;
 
-    this.preview.innerHTML = '';
+    this.information.innerHTML = '';
     
     if(!this.preview_value) return;
 
@@ -60,21 +64,20 @@ JSONEditor.defaults.editors.upload = JSONEditor.AbstractEditor.extend({
 
     var file = this.uploader.files[0];
 
-    this.preview.innerHTML = '<strong>' + this.translate('type') + ':</strong> ' + mime +
-    ', <strong>' + this.translate('size') + ':</strong> ' + file.size + ' bytes';
+    this.information.innerHTML = '<small class="previe-info"><strong>' + this.translate('type') +
+    ':</strong> ' + mime + ', <strong>' + this.translate('size') + ':</strong> ' + file.size +
+    ' bytes</small>';
+
     if(mime.substr(0,5)==="image") {
-      this.preview.innerHTML += '<br>';
-      var img = document.createElement('img');
-      img.style.maxWidth = '100%';
-      img.style.maxHeight = '100px';
-      img.src = this.preview_value;
-      this.preview.appendChild(img);
+      var img = this.preview.getElementsByTagName('img')[0];
+      img.setAttribute('src', this.preview_value);
+      self.theme.setFileInputPreviewTooltip(img, this.preview_value);
     }
 
-    this.preview.innerHTML += '<br>';
+    this.information.innerHTML += '<br>';
     var upload_text = this.translate('button_upload');
     var uploadButton = this.getButton(upload_text, 'upload', upload_text);
-    this.preview.appendChild(uploadButton);
+    this.information.appendChild(uploadButton);
     uploadButton.addEventListener('click',function(event) {
       event.preventDefault();
 

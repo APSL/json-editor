@@ -63,6 +63,23 @@ JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
     el.appendChild(input);
     return el;
   },
+  getFileInputPreview: function(image) {
+    var el =  this._super(image);
+    el.className = 'preview';
+    return el;
+  },
+  setFileInputPreviewTooltip: function(preview, image) {
+    preview.className = 'tooltipped';
+    preview.setAttribute('data-position', 'left');
+    preview.setAttribute('data-delay', '50');
+    preview.setAttribute('data-html', 'true');
+    if (image) {
+      window.$(preview).tooltip('remove');
+      var tooltip = "<div><img class='tooltip-preview' src='" + image + "'/></div>";
+      preview.setAttribute('data-tooltip', tooltip);
+      window.$(preview).tooltip();
+    }
+  },
   getHeader: function(text) {
     var el = document.createElement('h4');
     el.className = 'row mze-header';

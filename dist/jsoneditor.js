@@ -5806,13 +5806,17 @@ JSONEditor.defaults.editors.base64 = JSONEditor.AbstractEditor.extend({
       });
     }
 
-    this.preview = this.theme.getFormInputDescription(this.schema.description);
+    this.preview = this.theme.getFileInputPreview();
+    this.information = this.theme.getFormInputDescription(this.schema.description);
     this.control = this.theme.getFormControl(this.label, this.uploader||this.input, this.preview);
     this.decorator = this.theme.getFileInputDecorator();
 
     this.wrapper.appendChild(this.control);
-    if (this.decorator) this.wrapper.appendChild(this.decorator);
-    this.wrapper.appendChild(this.preview);
+    if (this.decorator) {
+        this.decorator.appendChild(this.preview);
+        this.wrapper.appendChild(this.decorator);
+    }
+    if (this.information) this.wrapper.appendChild(this.information);
 
     this.container.appendChild(this.wrapper);
   },
@@ -5820,7 +5824,7 @@ JSONEditor.defaults.editors.base64 = JSONEditor.AbstractEditor.extend({
     if(this.last_preview === this.value) return;
     this.last_preview = this.value;
     
-    this.preview.innerHTML = '';
+    this.information.innerHTML = '';
     
     if(!this.value) return;
     
@@ -5828,19 +5832,16 @@ JSONEditor.defaults.editors.base64 = JSONEditor.AbstractEditor.extend({
     if(mime) mime = mime[1];
     
     if(!mime) {
-      this.preview.innerHTML = '<em>' + this.translate('invalid_uri') + '</em>';
+      this.information.innerHTML = '<em>' + this.translate('invalid_uri') + '</em>';
     }
     else {
-      this.preview.innerHTML = '<strong>' + this.translate('type') + ':</strong> ' + mime +
-      ', <strong>' + this.translate('size') + ':</strong> ' +
+      this.information.innerHTML = '<small class="previe-info"><strong>' + this.translate('type') +
+    ':</strong> ' + mime + ', <strong>' + this.translate('size') + ':</strong> ' +
       Math.floor((this.value.length-this.value.split(',')[0].length-1)/1.33333) + ' bytes';
+
       if(mime.substr(0,5)==="image") {
-        this.preview.innerHTML += '<br>';
-        var img = document.createElement('img');
-        img.style.maxWidth = '100%';
-        img.style.maxHeight = '100px';
-        img.src = this.value;
-        this.preview.appendChild(img);
+        var img = this.preview.getElementsByTagName('img')[0];
+        img.setAttribute('src', this.value);
       }
     }
   },
@@ -5917,13 +5918,17 @@ JSONEditor.defaults.editors.upload = JSONEditor.AbstractEditor.extend({
     var description = this.schema.description;
     if (!description) description = '';
 
-    this.preview = this.theme.getFormInputDescription(description);
+    this.preview = this.theme.getFileInputPreview();
+    this.information = this.theme.getFormInputDescription(description);
     this.control = this.theme.getFormControl(this.label, this.uploader||this.input, this.preview);
     this.decorator = this.theme.getFileInputDecorator();
 
     this.wrapper.appendChild(this.control);
-    if (this.decorator) this.wrapper.appendChild(this.decorator);
-    this.wrapper.appendChild(this.preview);
+    if (this.decorator) {
+        this.decorator.appendChild(this.preview);
+        this.wrapper.appendChild(this.decorator);
+    }
+    if (this.information) this.wrapper.appendChild(this.information);
 
     this.container.appendChild(this.wrapper);
   },
@@ -5931,7 +5936,7 @@ JSONEditor.defaults.editors.upload = JSONEditor.AbstractEditor.extend({
     if(this.last_preview === this.preview_value) return;
     this.last_preview = this.preview_value;
 
-    this.preview.innerHTML = '';
+    this.information.innerHTML = '';
     
     if(!this.preview_value) return;
 
@@ -5943,21 +5948,20 @@ JSONEditor.defaults.editors.upload = JSONEditor.AbstractEditor.extend({
 
     var file = this.uploader.files[0];
 
-    this.preview.innerHTML = '<strong>' + this.translate('type') + ':</strong> ' + mime +
-    ', <strong>' + this.translate('size') + ':</strong> ' + file.size + ' bytes';
+    this.information.innerHTML = '<small class="previe-info"><strong>' + this.translate('type') +
+    ':</strong> ' + mime + ', <strong>' + this.translate('size') + ':</strong> ' + file.size +
+    ' bytes</small>';
+
     if(mime.substr(0,5)==="image") {
-      this.preview.innerHTML += '<br>';
-      var img = document.createElement('img');
-      img.style.maxWidth = '100%';
-      img.style.maxHeight = '100px';
-      img.src = this.preview_value;
-      this.preview.appendChild(img);
+      var img = this.preview.getElementsByTagName('img')[0];
+      img.setAttribute('src', this.preview_value);
+      self.theme.setFileInputPreviewTooltip(img, this.preview_value);
     }
 
-    this.preview.innerHTML += '<br>';
+    this.information.innerHTML += '<br>';
     var upload_text = this.translate('button_upload');
     var uploadButton = this.getButton(upload_text, 'upload', upload_text);
-    this.preview.appendChild(uploadButton);
+    this.information.appendChild(uploadButton);
     uploadButton.addEventListener('click',function(event) {
       event.preventDefault();
 
@@ -6279,6 +6283,22 @@ JSONEditor.AbstractTheme = Class.extend({
     return this.getFormInputLabel();
   },
   getFileInputDecorator: function() {},
+  getFileInputPreview: function(image) {
+    var el = document.createElement('p');
+    el.style.right = '20px';
+    el.style.bottom = '25px';
+    el.style.position = 'absolute';
+    el.style.overflow = 'hidden';
+    var preview = document.createElement('img');
+    preview.style.verticalAlign = 'middle';
+    preview.style.maxHeight = '40px';
+    preview.style.maxWidth = '40px';
+    this.setFileInputPreviewTooltip(preview, image);
+    if (image) preview.setAttribute('src', image);
+    el.appendChild(preview);
+    return el;
+  },
+  setFileInputPreviewTooltip: function(preview, image) {},
   getCheckboxLabel: function(text) {
     var el = this.getFormInputLabel(text);
     el.style.fontWeight = 'normal';
@@ -7610,6 +7630,23 @@ JSONEditor.defaults.themes.materialize = JSONEditor.AbstractTheme.extend({
     input.className = 'file-path validate';
     el.appendChild(input);
     return el;
+  },
+  getFileInputPreview: function(image) {
+    var el =  this._super(image);
+    el.className = 'preview';
+    return el;
+  },
+  setFileInputPreviewTooltip: function(preview, image) {
+    preview.className = 'tooltipped';
+    preview.setAttribute('data-position', 'left');
+    preview.setAttribute('data-delay', '50');
+    preview.setAttribute('data-html', 'true');
+    if (image) {
+      window.$(preview).tooltip('remove');
+      var tooltip = "<div><img class='tooltip-preview' src='" + image + "'/></div>";
+      preview.setAttribute('data-tooltip', tooltip);
+      window.$(preview).tooltip();
+    }
   },
   getHeader: function(text) {
     var el = document.createElement('h4');

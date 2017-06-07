@@ -94,6 +94,22 @@ JSONEditor.AbstractTheme = Class.extend({
     return this.getFormInputLabel();
   },
   getFileInputDecorator: function() {},
+  getFileInputPreview: function(image) {
+    var el = document.createElement('p');
+    el.style.right = '20px';
+    el.style.bottom = '25px';
+    el.style.position = 'absolute';
+    el.style.overflow = 'hidden';
+    var preview = document.createElement('img');
+    preview.style.verticalAlign = 'middle';
+    preview.style.maxHeight = '40px';
+    preview.style.maxWidth = '40px';
+    this.setFileInputPreviewTooltip(preview, image);
+    if (image) preview.setAttribute('src', image);
+    el.appendChild(preview);
+    return el;
+  },
+  setFileInputPreviewTooltip: function(preview, image) {},
   getCheckboxLabel: function(text) {
     var el = this.getFormInputLabel(text);
     el.style.fontWeight = 'normal';

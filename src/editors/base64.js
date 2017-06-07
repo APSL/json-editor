@@ -42,13 +42,17 @@ JSONEditor.defaults.editors.base64 = JSONEditor.AbstractEditor.extend({
       });
     }
 
-    this.preview = this.theme.getFormInputDescription(this.schema.description);
+    this.preview = this.theme.getFileInputPreview();
+    this.information = this.theme.getFormInputDescription(this.schema.description);
     this.control = this.theme.getFormControl(this.label, this.uploader||this.input, this.preview);
     this.decorator = this.theme.getFileInputDecorator();
 
     this.wrapper.appendChild(this.control);
-    if (this.decorator) this.wrapper.appendChild(this.decorator);
-    this.wrapper.appendChild(this.preview);
+    if (this.decorator) {
+        this.decorator.appendChild(this.preview);
+        this.wrapper.appendChild(this.decorator);
+    }
+    if (this.information) this.wrapper.appendChild(this.information);
 
     this.container.appendChild(this.wrapper);
   },
@@ -56,7 +60,7 @@ JSONEditor.defaults.editors.base64 = JSONEditor.AbstractEditor.extend({
     if(this.last_preview === this.value) return;
     this.last_preview = this.value;
     
-    this.preview.innerHTML = '';
+    this.information.innerHTML = '';
     
     if(!this.value) return;
     
@@ -64,19 +68,16 @@ JSONEditor.defaults.editors.base64 = JSONEditor.AbstractEditor.extend({
     if(mime) mime = mime[1];
     
     if(!mime) {
-      this.preview.innerHTML = '<em>' + this.translate('invalid_uri') + '</em>';
+      this.information.innerHTML = '<em>' + this.translate('invalid_uri') + '</em>';
     }
     else {
-      this.preview.innerHTML = '<strong>' + this.translate('type') + ':</strong> ' + mime +
-      ', <strong>' + this.translate('size') + ':</strong> ' +
+      this.information.innerHTML = '<small class="previe-info"><strong>' + this.translate('type') +
+    ':</strong> ' + mime + ', <strong>' + this.translate('size') + ':</strong> ' +
       Math.floor((this.value.length-this.value.split(',')[0].length-1)/1.33333) + ' bytes';
+
       if(mime.substr(0,5)==="image") {
-        this.preview.innerHTML += '<br>';
-        var img = document.createElement('img');
-        img.style.maxWidth = '100%';
-        img.style.maxHeight = '100px';
-        img.src = this.value;
-        this.preview.appendChild(img);
+        var img = this.preview.getElementsByTagName('img')[0];
+        img.setAttribute('src', this.value);
       }
     }
   },
