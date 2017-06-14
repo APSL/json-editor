@@ -1853,6 +1853,14 @@ JSONEditor.AbstractEditor = Class.extend({
   },
   showValidationErrors: function(errors) {
 
+  },
+
+  /* Setup materialize plugin */
+  setupMaterialize: function (switcher) {
+    if (window.jQuery && JSONEditor.plugins.materialize.enable) {
+      window.$(switcher).material_select('destroy');
+      window.$(switcher).material_select();
+    }
   }
 });
 
@@ -4647,6 +4655,7 @@ JSONEditor.defaults.editors.multiple = JSONEditor.AbstractEditor.extend({
 
     this.switchEditor(0);
     this.theme.setSwitcherEvents(this);
+    this.setupMaterialize(this.switcher);
   },
   onChildEditorChange: function(editor) {
     if(this.editors[this.type]) {
@@ -4681,7 +4690,8 @@ JSONEditor.defaults.editors.multiple = JSONEditor.AbstractEditor.extend({
     this.editors[this.type].setValue(val,initial);
 
     this.refreshValue();
-    self.onChange();
+    this.onChange();
+    this.setupMaterialize(this.switcher);
   },
   destroy: function() {
     $each(this.editors, function(type,editor) {
@@ -4755,6 +4765,7 @@ JSONEditor.defaults.editors["enum"] = JSONEditor.AbstractEditor.extend({
     if(this.options.hide_display) this.display_area.style.display = "none";
 
     this.switcher.addEventListener('change',function() {
+      this.setupMaterialize(self);
       self.selected = self.select_options.indexOf(this.value);
       self.value = self["enum"][self.selected];
       self.refreshValue();
@@ -4764,6 +4775,7 @@ JSONEditor.defaults.editors["enum"] = JSONEditor.AbstractEditor.extend({
     this.refreshValue();
 
     if(this["enum"].length === 1) this.switcher.style.display = 'none';
+    this.setupMaterialize(this.switcher);
   },
   refreshValue: function() {
     var self = this;
@@ -4867,7 +4879,9 @@ JSONEditor.defaults.editors.select = JSONEditor.AbstractEditor.extend({
     this.input.value = this.enum_options[this.enum_values.indexOf(sanitized)];
     if(this.select2) this.select2.select2('val',this.input.value);
     this.value = sanitized;
+
     this.onChange();
+    this.setupMaterialize(this.input);
   },
   register: function() {
     this._super();
@@ -5030,6 +5044,7 @@ JSONEditor.defaults.editors.select = JSONEditor.AbstractEditor.extend({
 
     this.value = this.enum_values[0];
     this.theme.setSelectEvents(this);
+    this.setupMaterialize(this.input);
   },
   onInputChange: function() {
     var val = this.input.value;
@@ -5231,7 +5246,9 @@ JSONEditor.defaults.editors.selectize = JSONEditor.AbstractEditor.extend({
     }
 
     this.value = sanitized;
+
     this.onChange();
+    this.setupMaterialize(this.input);
   },
   register: function() {
     this._super();
@@ -5380,6 +5397,7 @@ JSONEditor.defaults.editors.selectize = JSONEditor.AbstractEditor.extend({
 
     this.value = this.enum_values[0];
     this.theme.setSelectEvents(this);
+    this.setupMaterialize(this.input);
   },
   onInputChange: function() {
     var val = this.input.value;
@@ -5654,6 +5672,7 @@ JSONEditor.defaults.editors.multiselect = JSONEditor.AbstractEditor.extend({
 
     this.updateValue(value);
     this.onChange();
+    this.setupMaterialize(this.switcher);
   },
   setupSelect2: function() {
     if(window.jQuery && window.jQuery.fn && window.jQuery.fn.select2) {
@@ -6377,8 +6396,6 @@ JSONEditor.AbstractTheme = Class.extend({
   setSelectEvents: function(editor) {
     /**
      * Used into <select.js> <selectize.js> to redefine event for materialize css.
-     * When use materialize each selector is reinstanced with <materialize_select> method,
-     * so it change events defined before.
      */
   },
   getSwitcherContainer: function() {
@@ -6387,7 +6404,6 @@ JSONEditor.AbstractTheme = Class.extend({
   setSwitcherEvents: function(editor) {
     /**
      * Used into <multiple.js> to redefine event for materialize css.
-     * The behaviour is the same as we describe before <setSelectEvents>.
      */
   },
   getTextareaInput: function() {
@@ -8537,7 +8553,11 @@ JSONEditor.defaults.languages.en = {
   /**
    * Text and title for upload button
    */
-  button_upload: "Upload"
+  button_upload: "Upload",
+  /**
+   * Text and title for clean upload button
+   */
+  button_clear_upload: "Clear"
 };
 
 
@@ -8775,7 +8795,11 @@ JSONEditor.defaults.languages.es = {
   /**
    * Text and title for upload button
    */
-  button_upload: "Subir"
+  button_upload: "Subir",
+  /**
+   * Text and title for clean upload button
+   */
+  button_clear_upload: "Limpiar"
 };
 
 

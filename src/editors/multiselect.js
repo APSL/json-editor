@@ -93,6 +93,7 @@ JSONEditor.defaults.editors.multiselect = JSONEditor.AbstractEditor.extend({
 
     this.updateValue(value);
     this.onChange();
+    this.setupMaterialize(this.switcher);
   },
   setupSelect2: function() {
     if(window.jQuery && window.jQuery.fn && window.jQuery.fn.select2) {

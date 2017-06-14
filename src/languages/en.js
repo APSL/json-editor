@@ -232,6 +232,10 @@ JSONEditor.defaults.languages.en = {
   /**
    * Text and title for upload button
    */
-  button_upload: "Upload"
+  button_upload: "Upload",
+  /**
+   * Text and title for clean upload button
+   */
+  button_clear_upload: "Clear"
 };
 

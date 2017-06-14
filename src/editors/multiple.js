@@ -214,6 +214,7 @@ JSONEditor.defaults.editors.multiple = JSONEditor.AbstractEditor.extend({
 
     this.switchEditor(0);
     this.theme.setSwitcherEvents(this);
+    this.setupMaterialize(this.switcher);
   },
   onChildEditorChange: function(editor) {
     if(this.editors[this.type]) {
@@ -248,7 +249,8 @@ JSONEditor.defaults.editors.multiple = JSONEditor.AbstractEditor.extend({
     this.editors[this.type].setValue(val,initial);
 
     this.refreshValue();
-    self.onChange();
+    this.onChange();
+    this.setupMaterialize(this.switcher);
   },
   destroy: function() {
     $each(this.editors, function(type,editor) {

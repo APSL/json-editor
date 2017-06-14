@@ -467,5 +467,13 @@ JSONEditor.AbstractEditor = Class.extend({
   },
   showValidationErrors: function(errors) {
 
+  },
+
+  /* Setup materialize plugin */
+  setupMaterialize: function (switcher) {
+    if (window.jQuery && JSONEditor.plugins.materialize.enable) {
+      window.$(switcher).material_select('destroy');
+      window.$(switcher).material_select();
+    }
   }
 });

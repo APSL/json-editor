@@ -32,6 +32,7 @@ JSONEditor.defaults.editors["enum"] = JSONEditor.AbstractEditor.extend({
     if(this.options.hide_display) this.display_area.style.display = "none";
 
     this.switcher.addEventListener('change',function() {
+      this.setupMaterialize(self);
       self.selected = self.select_options.indexOf(this.value);
       self.value = self["enum"][self.selected];
       self.refreshValue();
@@ -41,6 +42,7 @@ JSONEditor.defaults.editors["enum"] = JSONEditor.AbstractEditor.extend({
     this.refreshValue();
 
     if(this["enum"].length === 1) this.switcher.style.display = 'none';
+    this.setupMaterialize(this.switcher);
   },
   refreshValue: function() {
     var self = this;

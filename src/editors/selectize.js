@@ -19,7 +19,9 @@ JSONEditor.defaults.editors.selectize = JSONEditor.AbstractEditor.extend({
     }
 
     this.value = sanitized;
+
     this.onChange();
+    this.setupMaterialize(this.input);
   },
   register: function() {
     this._super();
@@ -168,6 +170,7 @@ JSONEditor.defaults.editors.selectize = JSONEditor.AbstractEditor.extend({
 
     this.value = this.enum_values[0];
     this.theme.setSelectEvents(this);
+    this.setupMaterialize(this.input);
   },
   onInputChange: function() {
     var val = this.input.value;

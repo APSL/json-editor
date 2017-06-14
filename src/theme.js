@@ -188,8 +188,6 @@ JSONEditor.AbstractTheme = Class.extend({
   setSelectEvents: function(editor) {
     /**
      * Used into <select.js> <selectize.js> to redefine event for materialize css.
-     * When use materialize each selector is reinstanced with <materialize_select> method,
-     * so it change events defined before.
      */
   },
   getSwitcherContainer: function() {
@@ -198,7 +196,6 @@ JSONEditor.AbstractTheme = Class.extend({
   setSwitcherEvents: function(editor) {
     /**
      * Used into <multiple.js> to redefine event for materialize css.
-     * The behaviour is the same as we describe before <setSelectEvents>.
      */
   },
   getTextareaInput: function() {
