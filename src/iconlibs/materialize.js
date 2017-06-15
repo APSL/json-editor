@@ -1,14 +1,16 @@
 JSONEditor.defaults.iconlibs.materialize = JSONEditor.AbstractIconLib.extend({
   mapping: {
-    collapse: 'expand_less',
-    expand: 'expand_more',
-    "delete": 'delete',
-    edit: 'create',
+    collapse: 'keyboard_arrow_up',
+    expand: 'keyboard_arrow_down',
+    delete: 'delete',
+    edit: 'mode_edit',
     add: 'add',
     cancel: 'undo',
     save: 'save',
     moveup: 'arrow_upward',
-    movedown: 'arrow_downward'
+    movedown: 'arrow_downward',
+    upload: 'cloud_upload',
+    clean_upload: 'highlight_off'
   },
   icon_prefix: '',
   getIcon: function(key) {

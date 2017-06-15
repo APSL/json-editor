@@ -96,8 +96,8 @@ JSONEditor.AbstractTheme = Class.extend({
   getFileInputDecorator: function() {},
   getFileInputPreview: function(image) {
     var el = document.createElement('p');
-    el.style.right = '20px';
-    el.style.bottom = '25px';
+    el.style.right = '10%';
+    el.style.top = '0';
     el.style.position = 'absolute';
     el.style.overflow = 'hidden';
     var preview = document.createElement('img');

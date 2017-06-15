@@ -27,6 +27,8 @@ JSONEditor.defaults.editors.upload = JSONEditor.AbstractEditor.extend({
             fr = null;
           };
           fr.readAsDataURL(this.files[0]);
+        } else {
+          self.onLoadFileReader(e);
         }
       });
     }
@@ -53,8 +55,12 @@ JSONEditor.defaults.editors.upload = JSONEditor.AbstractEditor.extend({
     this.last_preview = this.preview_value;
 
     this.information.innerHTML = '';
-    
-    if(!this.preview_value) return;
+
+    if (this.decorator) this.decorator.className = this.decorator.className.replace(/\s?active/g,'');
+    if (!this.preview_value) {
+        this.setPreview();
+        return;
+    }
 
     var self = this;
 
@@ -68,11 +74,7 @@ JSONEditor.defaults.editors.upload = JSONEditor.AbstractEditor.extend({
     ':</strong> ' + mime + ', <strong>' + this.translate('size') + ':</strong> ' + file.size +
     ' bytes</small>';
 
-    if(mime.substr(0,5)==="image") {
-      var img = this.preview.getElementsByTagName('img')[0];
-      img.setAttribute('src', this.preview_value);
-      self.theme.setFileInputPreviewTooltip(img, this.preview_value);
-    }
+    if(mime.substr(0,5)==="image") this.setPreview();
 
     this.information.innerHTML += '<br>';
     var upload_text = this.translate('button_upload');
@@ -97,12 +99,10 @@ JSONEditor.defaults.editors.upload = JSONEditor.AbstractEditor.extend({
           else self.jsoneditor.onChange();
 
           if (self.progressBar) self.preview.removeChild(self.progressBar);
-          uploadButton.removeAttribute("disabled");
         },
         failure: function(error) {
           self.theme.addInputError(self.uploader, error);
           if (self.progressBar) self.preview.removeChild(self.progressBar);
-          uploadButton.removeAttribute("disabled");
         },
         updateProgress: function(progress) {
           if (self.progressBar) {
@@ -112,6 +112,16 @@ JSONEditor.defaults.editors.upload = JSONEditor.AbstractEditor.extend({
         }
       });
     });
+
+    var clearUploadButton = this.getButton('', 'clean_upload');
+    this.information.appendChild(clearUploadButton);
+    clearUploadButton.addEventListener('click',function(event) {
+      event.preventDefault();
+      self.setValue('');
+      self.uploader.value = '';
+      self.uploader.dispatchEvent(new Event('change'));
+    });
+    if (this.decorator && this.decorator.className.indexOf('active') == -1) this.decorator.className += ' active';
   },
   enable: function() {
     if(this.uploader) this.uploader.disabled = false;
@@ -122,14 +132,19 @@ JSONEditor.defaults.editors.upload = JSONEditor.AbstractEditor.extend({
     this._super();
   },
   setValue: function(val) {
-    if(this.value !== val) {
-      this.value = val;
-      this.input.value = this.value;
-      if (val && this.decorator) {
-        this.decorator.firstChild.value = val.split('/').pop();
-      }
-      this.onChange();
+    var changed = this.value !== val;
+    this.value = val;
+    this.input.value = this.value;
+    if (this.decorator) {
+      this.decorator.firstChild.value = val ? val.split('/').pop() : '';
     }
+
+    if (this.value) {
+        this.preview_value = this.value;
+        this.setPreview();
+    }
+
+    if (changed) this.onChange();
   },
   destroy: function() {
     if(this.preview && this.preview.parentNode) this.preview.parentNode.removeChild(this.preview);
@@ -143,5 +158,11 @@ JSONEditor.defaults.editors.upload = JSONEditor.AbstractEditor.extend({
     this.preview_value = event.target.result;
     this.refreshPreview();
     this.onChange(true);
+  },
+  setPreview: function() {
+    var img = this.preview.getElementsByTagName('img')[0];
+    var preview = this.preview_value || '';
+    img.setAttribute('src', preview);
+    this.theme.setFileInputPreviewTooltip(img, preview);
   }
 });
