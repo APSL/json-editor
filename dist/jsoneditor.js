@@ -6063,10 +6063,12 @@ JSONEditor.defaults.editors.upload = JSONEditor.AbstractEditor.extend({
     this.onChange(true);
   },
   setPreview: function() {
-    var img = this.preview.getElementsByTagName('img')[0];
+    var link = this.preview.getElementsByTagName('a')[0];
+    var img = link.getElementsByTagName('img')[0];
     var preview = this.preview_value || '';
     img.setAttribute('src', preview);
     this.theme.setFileInputPreviewTooltip(img, preview);
+    link.setAttribute('href', preview);
   }
 });
 
@@ -6329,13 +6331,19 @@ JSONEditor.AbstractTheme = Class.extend({
     el.style.top = '0';
     el.style.position = 'absolute';
     el.style.overflow = 'hidden';
+    var link = document.createElement('a');
+    link.setAttribute('target', '_blank');
     var preview = document.createElement('img');
     preview.style.verticalAlign = 'middle';
     preview.style.maxHeight = '40px';
     preview.style.maxWidth = '40px';
     this.setFileInputPreviewTooltip(preview, image);
-    if (image) preview.setAttribute('src', image);
-    el.appendChild(preview);
+    if (image) {
+        link.setAttribute('href', image);
+        preview.setAttribute('src', image);
+    }
+    link.appendChild(preview);
+    el.appendChild(link);
     return el;
   },
   setFileInputPreviewTooltip: function(preview, image) {},

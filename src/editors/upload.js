@@ -160,9 +160,11 @@ JSONEditor.defaults.editors.upload = JSONEditor.AbstractEditor.extend({
     this.onChange(true);
   },
   setPreview: function() {
-    var img = this.preview.getElementsByTagName('img')[0];
+    var link = this.preview.getElementsByTagName('a')[0];
+    var img = link.getElementsByTagName('img')[0];
     var preview = this.preview_value || '';
     img.setAttribute('src', preview);
     this.theme.setFileInputPreviewTooltip(img, preview);
+    link.setAttribute('href', preview);
   }
 });

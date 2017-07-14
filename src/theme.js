@@ -100,13 +100,19 @@ JSONEditor.AbstractTheme = Class.extend({
     el.style.top = '0';
     el.style.position = 'absolute';
     el.style.overflow = 'hidden';
+    var link = document.createElement('a');
+    link.setAttribute('target', '_blank');
     var preview = document.createElement('img');
     preview.style.verticalAlign = 'middle';
     preview.style.maxHeight = '40px';
     preview.style.maxWidth = '40px';
     this.setFileInputPreviewTooltip(preview, image);
-    if (image) preview.setAttribute('src', image);
-    el.appendChild(preview);
+    if (image) {
+        link.setAttribute('href', image);
+        preview.setAttribute('src', image);
+    }
+    link.appendChild(preview);
+    el.appendChild(link);
     return el;
   },
   setFileInputPreviewTooltip: function(preview, image) {},
